@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "WhirlyGlobeComponent.h"
 #import "ConfigViewController.h"
+#import <GoogleMaps/GoogleMaps.h>
 
 // Map or globe or startup
 typedef enum {MaplyGlobe,MaplyGlobeWithElevation,Maply3DMap,Maply2DMap,MaplyNumTypes} MapType;
