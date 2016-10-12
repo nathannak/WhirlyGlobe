@@ -27,6 +27,7 @@ LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/stubs/
 LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/io/
 LOCAL_C_INCLUDES += jni/
 LOCAL_C_INCLUDES += ../../WhirlyGlobeSrc/local_libs/aaplus/
+LOCAL_C_INCLUDES += ../../WhirlyGlobeSrc/WhirlyGlobeLib/imagerypro_include/
 
 LOCAL_MODULE    := Maply
 
@@ -119,6 +120,10 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
+IMAGERYPRO_SRC_FILES := MaplyIProShaderGenerator.cpp MaplyIProRampStackShader.cpp 
+IMAGERYPRO_SRC_DIR := $(SRC_DIR)/../imagerypro_src/
+LOCAL_SRC_FILES += $(IMAGERYPRO_SRC_FILES:%=$(IMAGERYPRO_SRC_DIR)/%)
+
 MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					BaseInfo_jni.cpp Billboard_jni.cpp BillboardInfo_jni.cpp BillboardManager_jni.cpp \
 					ChangeSet_jni.cpp CoordSystem_jni.cpp CoordSystemDisplayAdapter_jni.cpp DirectionalLight_jni.cpp \
@@ -133,7 +138,8 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					SelectionManager_jni.cpp SelectedObject_jni.cpp Shader_jni.cpp SimplePoly_jni.cpp SingleLabelAndroid.cpp SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp \
 					Scene_jni.cpp ScreenObject_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp \
 					ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp Texture_jni.cpp \
-					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp
+					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp \
+					ShaderGenerator_jni.cpp RampStackShader_jni.cpp
 
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)
 

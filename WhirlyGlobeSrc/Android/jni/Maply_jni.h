@@ -26,7 +26,9 @@
 #include <android/log.h>
 #endif
 #include <WhirlyGlobe.h>
+#include <WGMaplyImageryPro.h>
 #import "SingleLabelAndroid.h"
+#import "ShaderWrapper.h"
 
 /* Java Class Info
  * This tracks JNI info about classes we implement.
@@ -466,6 +468,7 @@ typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
 typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
 typedef JavaClassInfo<WhirlyKit::SelectionManager::SelectedObject> SelectedObjectClassInfo;
+typedef JavaClassInfo<MaplyIPro::ShaderGeneratorWrapper> ShaderGeneratorWrapperClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;
