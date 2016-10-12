@@ -83,7 +83,7 @@ public class MaplyBaseController
 	protected CoordSystemDisplayAdapter coordAdapter;
 	
 	// Scene stores the objects
-	protected Scene scene = null;
+	public Scene scene = null;
 
     /**
      * Return the current scene.  Only for sure within the library.

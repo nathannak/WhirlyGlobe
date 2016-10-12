@@ -44,7 +44,7 @@ do
     fi
 done
 
-for mod in ShaderGenerator RampStackShader
+for mod in ShaderGenerator RampStackShader QuadImageTileLayer
 do
     if [[ $2 == "nocache" ]]; then
         compile2 "$1" "imagerypro.$mod"

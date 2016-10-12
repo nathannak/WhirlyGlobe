@@ -27,9 +27,9 @@ package com.mousebird.maply;
  * not be manipulating these.
  * 
  */
-class ChangeSet
+public class ChangeSet
 {
-	ChangeSet()
+	public ChangeSet()
 	{
 		initialise();
 	}
