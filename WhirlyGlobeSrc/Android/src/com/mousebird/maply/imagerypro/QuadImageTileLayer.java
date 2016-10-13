@@ -41,6 +41,26 @@ import com.mousebird.maply.*;
  */
 public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcherInterface, QuadImageTileLayerInterface
 {
+    /// Image format used internally (e.g. stored by OpenGL)
+    public enum MaplyIProInternalImageFormat {
+        MaplyIProImage4Layer8Bit,
+        MaplyIProImageUShort565,
+        MaplyIProImageUShort4444,
+        MaplyIProImageUShort5551,
+        MaplyIProImageByte
+    };
+
+    public enum MaplyIProTemporalInterpolation {
+        MaplyIProTemporalNearest,
+        MaplyIProTemporalLinear,
+        MaplyIProTemporalCubic
+    };
+
+    public enum MaplyIProSpatialInterpolation {
+        MaplyIProSpatialBilinear,
+        MaplyIProSpatialBicubic
+    };
+
     // Set when the layer is active.
     boolean valid = false;
 
@@ -672,26 +692,13 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     /**
      * Enumerated values for image types.
      */
-    public enum ImageFormat {MaplyImageIntRGBA,
-        MaplyImageUShort565,
-        MaplyImageUShort4444,
-        MaplyImageUShort5551,
-        MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
-        MaplyImageUByteRGB,
-        MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-        MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
-        MaplyImage4Layer8Bit};
-
-    /** Set the image format for the texture atlases (thus the imagery).
-     * OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
-     * Be sure to set this at layer creation, it won't do anything later on.
-     */
-    public void setImageFormat(ImageFormat format)
-    {
-        setImageFormat(format.ordinal());
-    }
-
-    native void setImageFormat(int format);
+    public enum ImageFormat {
+        MaplyIProImage4Layer8Bit,
+        MaplyIProImageUShort565,
+        MaplyIProImageUShort4444,
+        MaplyIProImageUShort5551,
+        MaplyIProImageByte
+        };
 
     /**
      * Returns the number of border texels used around images.
@@ -783,6 +790,91 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * Something implausibly large by default.
      */
     public native void setVisibility(double minVis,double maxVis);
+
+    // Note: New functions
+
+    /**
+     * Set up the internal image format of the quad images layer.
+     * <br>
+     * The internal image format is how OpenGL ES is storing the raw data we're using for rendering.
+     * If you're doing indexed or stacked data this is probably MaplyIProImage4Layer8Bit.
+     * If you're doing grayscale then MaplyIProImageByte.
+     * The other modes are optimized color options.  565 is good for color, 4444 if you don't really know, and 5551 if you have very simple alpha.
+     */
+    public void setInternalImageFormat(MaplyIProInternalImageFormat internalImageFormat)
+    {
+        setInternalImageFormatNative(internalImageFormat.ordinal());
+    }
+    private native void setInternalImageFormatNative(int iVal);
+
+    /** The source layout controls how we treat the input data.
+     * <br>
+     * The source layout object tells the system how to treat the input data and decode it.  Consult MaplyIProImageSourceLayout for details.
+     */
+    public void setSourceLayout(ImageSourceLayout sourceLayout)
+    {
+        setSourceLayoutNative(sourceLayout.slicesPerImage,sourceLayout.indexed,sourceLayout.sourceWidth.ordinal(),sourceLayout.pixelOrder.ordinal(),sourceLayout.slicesInLastImage);
+    }
+    private native void setSourceLayoutNative(int slicesPerImage,boolean indexed,int sourceWidth,int pixelOrder,int slicesInLastImage);
+
+    /**
+     * Fill in the interface for the position feedback and you can set the position manually every frame.
+     */
+    interface ImagePositionFeedback
+    {
+        /** The callback for position (or time) update.
+         * <br>
+         * Fill this in to get notified when the quad images layer changes the position with the stack of images.
+         * @param layer The quad images layer in question.
+         * @param minPos Minimum overall position value for comparison (usually 0.0)
+         * @param maxPos Maximum overall position for comparison (usually imageDepth).
+         * @param currentPos Current position within the image stack.
+         */
+        void positionForImagesLayer(QuadImageTileLayer layer,double minPos,double maxPos,double currentPos);
+    }
+
+    /**
+     * Fill in the interface for the position feedback and you can set the position manually every frame.
+     */
+    ImagePositionFeedback positionFeedbackDelegate = null;
+
+    /** The OpenGL ES program used to draw the quad images layer.
+     * <br>
+     * This will be generated internally by the quad images layer unless you override it.
+     * If you do override it, be sure to also look at the MaplyIProQuadImagesUpdater which sets the various uniforms.
+     */
+    public void setShader(Shader shader)
+    {
+        setShaderNative(shader.getID());
+    }
+    private native void setShaderNative(long shaderID);
+
+    /** For indexed data sets the image we'll index into.
+     * <br>
+     * The ramp image is used by indexed data sets to generate colors.
+     * For 8 bit lookup you'll need a ramp image of at least 256x1.
+     * Put your various colors in each of those pixels or use the MaplyColorRampGenerator to generate an image.
+     */
+    public native void setRampImage(Bitmap rampImage);
+
+    /** Controls how the layer displays things in time (position).
+     * <br>
+     * There are a variety of interpolation modes among the image stack (think time).  None are terribly expensive on the device since they're just interpolation among layers.
+     */
+    public void setTemporalInterpolate(MaplyIProTemporalInterpolation temporalInterpolate)
+    {
+        setTemporalInterpolateNative(temporalInterpolate.ordinal());
+    }
+    private native void setTemporalInterpolateNative(int iVal);
+
+    /** Controls how the layer displays things in space.
+     * The quad images layer can let the normal bilinear interpolation that OpenGL ES provides happen or it can override that with a more expensive bicubic interpolation.
+     */
+    public void setSpatialInterpolate(MaplyIProSpatialInterpolation spatialInterpolate)
+    {
+        setSpatialInterpolateNative(spatialInterpolate.ordinal());
+    }
+    private native void setSpatialInterpolateNative(int iVal);
 
     native void nativeShutdown(ChangeSet changes);
 
