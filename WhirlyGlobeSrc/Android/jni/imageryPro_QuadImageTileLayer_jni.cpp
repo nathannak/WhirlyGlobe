@@ -1076,30 +1076,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setShaderName
-(JNIEnv *env, jobject obj, jstring shaderName)
-{
-    try
-    {
-        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
-        ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
-        if (!adapter)
-            return;
-//        adapter->env = env;
-        
-        const char *cName = env->GetStringUTFChars(shaderName,0);
-        std::string name = cName;
-
-        adapter->setShaderName(cName);
-
-        env->ReleaseStringUTFChars(shaderName, cName);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setShaderName()");
-    }
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_reload
   (JNIEnv *env, jobject obj, jobject changeSetObj)
 {
@@ -1439,4 +1415,94 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeTileDidLoad()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setInternalImageFormatNative
+(JNIEnv *env, jobject obj, jint imageFormat)
+{
+    try
+    {
+        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setInternalImageFormatNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSourceLayoutNative
+(JNIEnv *env, jobject obj, jint slicesPerImage,jboolean indexed,jint sourceWidth,jint pixelOrder,jint slicesInLastImage)
+{
+    try
+    {
+        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setSourceLayoutNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setShaderNative
+(JNIEnv *env, jobject obj, jlong shaderID)
+{
+    try
+    {
+        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setShaderNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setRampImage
+(JNIEnv *env, jobject obj, jobject bitmapObj)
+{
+    try
+    {
+        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setRampImage()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTemporalInterpolateNative
+(JNIEnv *env, jobject obj, jint interp)
+{
+    try
+    {
+        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setTemporalInterpolateNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSpatialInterpolateNative
+(JNIEnv *env, jobject obj, jint interp)
+{
+    try
+    {
+        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setSpatialInterpolateNative()");
+    }
 }

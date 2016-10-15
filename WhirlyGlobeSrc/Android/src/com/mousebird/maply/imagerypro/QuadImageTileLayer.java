@@ -168,7 +168,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         if (currentImageSetBeforeStart)
         {
             ChangeSet changes = new ChangeSet();
-            setCurrentImage(currentImageValue, changes);
+            setCurrentImages((int)currentImageValue,(int)(currentImageValue+1), changes);
 
             setFrameLoadingPriority(currentPriorities, changes);
 
@@ -411,6 +411,14 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     native void setEnable(boolean enable,ChangeSet changes);
 
     /**
+     * Is the layer enabled.
+     */
+    public boolean getEnable()
+    {
+        return startEnable;
+    }
+
+    /**
      * Set the draw priority for the whole quad image layer.
      */
     public native void setDrawPriority(int drawPriority);
@@ -482,7 +490,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
             }
             ChangeSet changes = new ChangeSet();
 
-            setCurrentImage(current, changes);
+            setCurrentImages((int)current,(int)(current+1), changes);
 
             if (layerThread.scene != null)
                 changes.process(layerThread.scene);
@@ -495,7 +503,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         maplyControl.requestRender();
     }
 
-    native void setCurrentImage(float current,ChangeSet changes);
+    native public void setCurrentImages(int image0,int image1,ChangeSet changes);
 
     /** If set, we'll use this as the maximum current image value when animating.
      * By default this is off (-1).  When it's on, we'll consider this the last valid value for currentImage.  This means, when animating, we'll run from 0 to maxCurrentImage.
@@ -503,47 +511,16 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      */
     public native void setMaxCurrentImage(float maxCurrent);
 
-    // Called periodically to update
-    class ImageUpdater implements ActiveObject
-    {
-        QuadImageTileLayer imageLayer = null;
-        int imageDepth = 0;
-        double startTime,period;
-
-        ImageUpdater(QuadImageTileLayer inImageLayer,double inPeriod)
-        {
-            imageLayer = inImageLayer;
-            imageDepth = imageLayer.getImageDepth();
-            period = inPeriod;
-            startTime = System.currentTimeMillis()/1000.0;
-            if (imageLayer.getImageDepth() > 1)
-                startTime = startTime-imageLayer.getCurrentImage()/imageLayer.getImageDepth() * period;
-        }
-
-        // Change the current image based on the time
-        public void activeUpdate()
-        {
-            double now = System.currentTimeMillis()/1000.0;
-            double where = ((now-startTime) % period)/period * (imageLayer.getImageDepth()-1);
-
-            ChangeSet changes = new ChangeSet();
-            setCurrentImage((float)where, changes);
-            maplyControl.scene.addChanges(changes);
-        }
-
-        @Override
-        public boolean hasChanges()
-        {
-            return period != 0.0 && imageDepth != 0;
-        }
-    }
     ImageUpdater imageUpdater = null;
+
+    double animationPeriod = 0.0;
 
     /** The length of time we'll take to switch through all available images (per tile).
      * If set to non-zero right after layer creation we'll run through all the available images (in each tile) over the given period.  This only makes sense if you've got more than one image per tile.
      * If you want tighter control use the currentImage property and set your own timer.
      */
     public void setAnimationPeriod(float period) {
+        animationPeriod = period;
         if (maplyControl == null)
             return;
 
@@ -558,6 +535,14 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         }
     }
 
+    /**
+     * Get the current animation period.
+     */
+    public double getAnimationPeriod()
+    {
+        return animationPeriod;
+    }
+
     boolean animationWrap = false;
 
     /** If set to true, we'll consider the list of images for each tile to be circular when we animate.
@@ -568,6 +553,11 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     {
         animationWrap = wrap;
     }
+
+    /**
+     * If set, the animation will wrap around when displaying.
+     */
+    boolean getAnimationWrap() { return animationWrap; }
 
     /** If set, we'll try to fetch frames individually.
      * When fetching from a data source that has multiple frames we'll fetch each frame individually and allow them to display as we go.
@@ -733,11 +723,6 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      */
     public native int getTargetZoomLevel();
 
-    /**
-     * Set the scene name of the shader to use for this layer.
-     */
-    public native void setShaderName(String name);
-
     /** Force a full reload of all tiles.
      * This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
      * This is good for tile sources, like weather, that need to be refreshed every so often.
@@ -834,9 +819,50 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     }
 
     /**
-     * Fill in the interface for the position feedback and you can set the position manually every frame.
+     * Fill in the interface for the position feedback and you can get the position every so
      */
-    ImagePositionFeedback positionFeedbackDelegate = null;
+    public ImagePositionFeedback positionFeedbackDelegate = null;
+
+    public enum MaplyIProPosFeedback {
+        MaplyIProPosFeedbackContinuous,
+        MaplyIProPosFeedbackPeriodic
+    };
+
+    public MaplyIProPosFeedback positionFeedbackType;
+    public double positionUpdatePeriod = 1.0;
+
+    /**
+     * Fill this in to get periodic or continuous position updates.
+     * @param feedbackType Continuous or periodic position updates.
+     * @param updatePeriod How often to update.  Only used if the feedback is periodic.
+     * @param newDelegate Object to call on position update.
+     */
+    public void setImagePositionFeedback(MaplyIProPosFeedback feedbackType,double updatePeriod,ImagePositionFeedback newDelegate)
+    {
+        positionFeedbackType = feedbackType;
+        positionUpdatePeriod = updatePeriod;
+        positionFeedbackDelegate = newDelegate;
+    }
+
+    /**  Used to modify the position within the image stack.
+     * <br>
+     * You can set currentImage directly or you can let the quad images layer animation on its own.  But if you really want to, you can just mess with the position directly each frame.
+     * If you want to do that you fill in this delegate and return a position between minPos and maxPos.
+     */
+    interface ImagePositionSetter
+    {
+        /** Return a position to display within the image stack.
+         * @param layer The quad images layer in question.
+         * @param minPos Minimum overall position value for comparison (usually 0.0)
+         * @param maxPos Maximum overall position for comparison (usually imageDepth).
+         */
+        double calculatePositionForImagesLayer(QuadImageTileLayer layer,double minPos,double maxPos);
+    }
+
+    /**
+     * Fill this in to set the position every frame (if desired).
+     */
+    public ImagePositionSetter positionSettingDelegate = null;
 
     /** The OpenGL ES program used to draw the quad images layer.
      * <br>

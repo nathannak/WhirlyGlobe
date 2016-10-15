@@ -143,6 +143,11 @@ public class MaplyBaseController
 	private int lastLayerThreadReturned = 0;
 
 	/**
+	 * Activity for the whole app.
+     */
+	public Activity getActivity() { return activity; }
+
+	/**
 	 * Returns a layer thread you can do whatever you like on.  You don't have
 	 * to be particularly fast about it, it won't hold up the main layer thread.
 	 * These layer threads are set up with the proper OpenGL contexts so they're

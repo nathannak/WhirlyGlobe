@@ -49,11 +49,11 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_
 
 /*
  * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
- * Method:    setCurrentImage
- * Signature: (FLcom/mousebird/maply/ChangeSet;)V
+ * Method:    setCurrentImages
+ * Signature: (IILcom/mousebird/maply/ChangeSet;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImage
-  (JNIEnv *, jobject, jfloat, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImages
+  (JNIEnv *, jobject, jint, jint, jobject);
 
 /*
  * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
@@ -150,14 +150,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_getTargetZoomLevel
   (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
- * Method:    setShaderName
- * Signature: (Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setShaderName
-  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
