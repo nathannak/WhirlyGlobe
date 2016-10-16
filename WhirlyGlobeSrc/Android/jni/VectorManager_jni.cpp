@@ -26,26 +26,11 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-// Wrapper that tracks the scene as well
-class VecManagerWrapper
-{
-public:
-	VecManagerWrapper(VectorManager *vecManager,Scene *scene)
-		: vecManager(vecManager), scene(scene)
-	{
-
-	}
-	VectorManager *vecManager;
-	Scene *scene;
-};
-
-typedef JavaClassInfo<VecManagerWrapper> VectorManagerWrapperClassInfo;
-template<> VectorManagerWrapperClassInfo *VectorManagerWrapperClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_nativeInit
   (JNIEnv *env, jclass cls)
 {
-	VectorManagerWrapperClassInfo::getClassInfo(env,cls);
+	VectorManagerClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
@@ -57,8 +42,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
         if (!scene)
             return;
 		VectorManager *vecManager = dynamic_cast<VectorManager *>(scene->getManager(kWKVectorManager));
-		VecManagerWrapper *wrap = new VecManagerWrapper(vecManager,scene);
-		VectorManagerWrapperClassInfo::getClassInfo()->setHandle(env,obj,wrap);
+        VectorManagerClassInfo::getClassInfo()->setHandle(env, obj, vecManager);
 	}
 	catch (...)
 	{
@@ -73,15 +57,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_dispose
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            VecManagerWrapper *wrap = classInfo->getObject(env,obj);
-            if (!wrap)
-                return;
-            classInfo->clearHandle(env,obj);
-            delete wrap;
-        }
+        VectorManagerClassInfo *classInfo = VectorManagerClassInfo::getClassInfo();
+        classInfo->clearHandle(env, obj);
 	}
 	catch (...)
 	{
@@ -94,11 +71,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-		VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        VectorManagerClassInfo *classInfo = VectorManagerClassInfo::getClassInfo();
+        VectorManager *vectorManager = classInfo->getObject(env, obj);
 		VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!wrap || !vecInfo || !changeSet)
+		if (!vectorManager || !vecInfo || !changeSet)
 			return EmptyIdentity;
 
 //        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "VectorInfo: (min,max) = (%f, %f), color = (%d,%d,%d,%d)",vecInfo->minVis,vecInfo->maxVis,(int)vecInfo->color.r,(int)vecInfo->color.g,(int)vecInfo->color.b,(int)vecInfo->color.a);
@@ -125,7 +102,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 		}
 		env->DeleteLocalRef(liter);
 
-		SimpleIdentity vecId = wrap->vecManager->addVectors(&shapes,*vecInfo,*changeSet);
+		SimpleIdentity vecId = vectorManager->addVectors(&shapes,*vecInfo,*changeSet);
 
 		return vecId;
 	}
@@ -141,18 +118,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
 (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject vecInfoObj, jobject changeSetObj)
 {
     try {
-        VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-        VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        VectorManagerClassInfo *classInfo = VectorManagerClassInfo::getClassInfo();
+        VectorManager *vectorManager = classInfo->getObject(env, obj);
         VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!wrap || !vecInfo || !changeSet)
+        if (!vectorManager || !vecInfo || !changeSet)
             return;
         
         JavaLongArray ids(env,idArrayObj);
         SimpleIDSet idSet;
         for (unsigned int ii=0;ii<ids.len;ii++)
         {
-            wrap->vecManager->changeVectors(ids.rawLong[ii],*vecInfo,*changeSet);
+            vectorManager->changeVectors(ids.rawLong[ii],*vecInfo,*changeSet);
         }
     }
     catch (...)
@@ -166,10 +143,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-		VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+		VectorManagerClassInfo *classInfo = VectorManagerClassInfo::getClassInfo();
+		VectorManager *vectorManager = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!wrap || !changeSet)
+		if (!vectorManager || !changeSet)
 			return;
 
 		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
@@ -182,7 +159,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
 			idSet.insert(ids[ii]);
 		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 
-		wrap->vecManager->removeVectors(idSet,*changeSet);
+        vectorManager->removeVectors(idSet,*changeSet);
 	}
 	catch (...)
 	{
@@ -195,10 +172,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-		VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+		VectorManagerClassInfo *classInfo = VectorManagerClassInfo::getClassInfo();
+		VectorManager *vectorManager = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!wrap || !changeSet)
+		if (!vectorManager || !changeSet)
 			return;
 
 		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
@@ -211,7 +188,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 			idSet.insert(ids[ii]);
 		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 
-		wrap->vecManager->enableVectors(idSet,enable,*changeSet);
+		vectorManager->enableVectors(idSet,enable,*changeSet);
 	}
 	catch (...)
 	{
