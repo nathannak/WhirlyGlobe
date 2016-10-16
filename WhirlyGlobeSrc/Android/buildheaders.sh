@@ -1,12 +1,14 @@
+ANDROID_SDK=android-23
+
 compile() {
     echo "Compiling java for $2"
-    javac -classpath "${1}"/platforms/android-21/android.jar:../libs/okhttp-2.0.0-RC1.jar:.  com/mousebird/maply/$2.java
+    javac -classpath "${1}"/platforms/$ANDROID_SDK/android.jar:../libs/okhttp-2.0.0-RC1.jar:.  com/mousebird/maply/$2.java
 }
 
 header() {
     echo "Building header for $2"
 
-    javah -classpath "${1}"/platforms/android-21/android.jar:../libs/okhttp-2.0.0-RC1.jar:. -jni com.mousebird.maply.$2
+    javah -classpath "${1}"/platforms/$ANDROID_SDK/android.jar:../libs/okhttp-2.0.0-RC1.jar:. -jni com.mousebird.maply.$2
     mv com_mousebird_maply_$2*.h ../jni/
 }
 
