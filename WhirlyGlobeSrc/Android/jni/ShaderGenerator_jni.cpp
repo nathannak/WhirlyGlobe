@@ -165,7 +165,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_imagerypro_ShaderGenerator_ge
         std::string errorStr;
         bool retVal = shaderGen->shaderGen->generateShaders(shaderGen->vertStr,shaderGen->fragStr,errorStr);
         
-        if (retVal)
+        if (!retVal)
             return env->NewStringUTF(errorStr.c_str());
         else
             return NULL;

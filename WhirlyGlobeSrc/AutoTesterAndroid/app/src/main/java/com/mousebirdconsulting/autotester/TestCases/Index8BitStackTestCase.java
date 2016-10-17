@@ -17,15 +17,15 @@ import com.mousebirdconsulting.autotester.IndexTestTileSource;
 import com.mousebirdconsulting.autotester.R;
 
 /**
- * Test case for Imagery Pro Quad Images layer.
- * This one just does whole pixel indexing.  No slices.
+ * Test case for 8 bit Indexed data.
+ * 8 bit slices with indexing.
  */
-public class IndexWholeTestCase extends MaplyTestCase
+public class Index8BitStackTestCase extends MaplyTestCase
 {
-    public IndexWholeTestCase(Activity activity) {
+    public Index8BitStackTestCase(Activity activity) {
         super(activity);
 
-        setTestName("Indexed Image, No slices");
+        setTestName("Indexed Image, 8 bit slices");
         setDelay(20);
         this.implementation = TestExecutionImplementation.Both;
     }
@@ -36,10 +36,10 @@ public class IndexWholeTestCase extends MaplyTestCase
 
         // Describe the input data sources
         ImageSourceLayout srcLayout = new ImageSourceLayout();
-        srcLayout.slicesInLastImage = 1;
+        srcLayout.slicesInLastImage = 4;
         srcLayout.indexed = true;
-        srcLayout.sourceWidth = ImageSourceLayout.MaplyIProSourceWidth.MaplyIProWidthWhole;
-        srcLayout.slicesInLastImage = 1;
+        srcLayout.sourceWidth = ImageSourceLayout.MaplyIProSourceWidth.MaplyIProWidth8Bits;
+        srcLayout.slicesInLastImage = 4;
 
         Bitmap colorramp = BitmapFactory.decodeResource(getActivity().getResources(),
                 R.drawable.colorramp);

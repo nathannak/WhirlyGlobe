@@ -18,6 +18,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
+import com.mousebirdconsulting.autotester.TestCases.Index8BitStackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.IndexWholeTestCase;
 
 import java.util.ArrayList;
@@ -77,6 +78,7 @@ public class TestListFragment extends Fragment {
 			testCases = new ArrayList<>();
 			testCases.add(new CartoDBMapTestCase(getActivity()));
 			testCases.add(new IndexWholeTestCase(getActivity()));
+			testCases.add(new Index8BitStackTestCase(getActivity()));
 		}
 
 		public void downloadResources() {

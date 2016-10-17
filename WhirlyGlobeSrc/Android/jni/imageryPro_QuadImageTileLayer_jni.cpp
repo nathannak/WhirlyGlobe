@@ -132,6 +132,7 @@ public:
 	    tileLoader->setEnable(enable,changes);
 //	    tileLoader->setFade(fade,changes);
 	    tileLoader->setUseTileCenters(false);
+        tileLoader->setProgramId(shaderID);
 	    switch (internalImageFormat)
 	    {
 //        case MaplyImage4Layer8Bit:
@@ -158,10 +159,17 @@ public:
 	    }
 	    tileLoader->setColor(color);
 
-	    setCurrentImage(currentImage,changes);
+	    setCurrentImages(floor(currentImage),ceil(currentImage),changes);
 
 	    return tileLoader;
 	}
+    
+    void setShaderID(SimpleIdentity newShaderID)
+    {
+        shaderID = newShaderID;
+        if (tileLoader)
+            tileLoader->setProgramId(shaderID);
+    }
 
 	// Called to start the layer
 	void start(Scene *inScene,SceneRendererES *inRenderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom,int inPixelsPerSide)
@@ -205,12 +213,8 @@ public:
 	}
 
 	// Change which image is displayed (or interpolation thereof)
-	void setCurrentImage(float newCurrentImage,ChangeSet &changes)
+	void setCurrentImages(int image0,int image1,ChangeSet &changes)
 	{
-		currentImage = newCurrentImage;
-
-	    unsigned int image0 = floorf(currentImage);
-	    unsigned int image1 = ceilf(currentImage);
 	    if (animationWrap)
 	    {
 	        if (image1 == imageDepth)
@@ -220,18 +224,10 @@ public:
 	        image0 = imageDepth-1;
 	    if (image1 >= imageDepth)
 	        image1 = -1;
-	    float t = currentImage-image0;
-
-	//    NSLog(@"currentImage = %d->%d -> %f",image0,image1,t);
 
 	    // Change the images to give us start and finish
 	    if (tileLoader)
 	    	tileLoader->setCurrentImageStart(image0,image1,changes);
-        
-//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "image0 = %d, image1 = %d, u_interp = %f",image0,image1,t);
-
-        
-        changes.push_back(new SetProgramValueReq(shaderID,"u_interp",t));
 	}
     
     void setColor(const RGBAColor &newColor)
@@ -686,8 +682,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_
     return 0.0;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImage
-  (JNIEnv *env, jobject obj, jfloat currentImage, jobject changeSetObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImages
+(JNIEnv *env, jobject obj, jint image0, jint image1, jobject changeSetObj)
 {
 	try
 	{
@@ -698,11 +694,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 			return;
 
 //        adapter->env = env;
-		adapter->setCurrentImage(currentImage,*changeSet);
+		adapter->setCurrentImages(image0,image1,*changeSet);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setCurrentImage()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setCurrentImages()");
 	}
 }
 
@@ -1359,7 +1355,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
         if (!adapter)
             return;
         
-        adapter->shaderID = shaderID;
+        adapter->setShaderID(shaderID);
     }
     catch (...)
     {

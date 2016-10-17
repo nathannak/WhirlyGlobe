@@ -175,9 +175,14 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     {
         super.startLayer(layerThread);
 
+        imageUpdater = new ImageUpdater(this);
+
         // Build the Shader if it isn't set already
         if (shader == null)
             shader = generateShader();
+        updateUpdater();
+        setAnimationPeriod(animationPeriod);
+        setAnimationWrap(animationWrap);
 
         layerThread.addWatcher(this);
         Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
@@ -281,9 +286,52 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
                 setRampImage(rampImage);
             shader.setUniform("u_textureAtlasSize",textureAtlasSize);
             shader.setUniform("u_textureAtlasSizeInv",1.0/textureAtlasSize);
+
+            imageUpdater.program = shader;
+            setShaderNative(shader.getID());
         }
 
         return shader;
+    }
+
+    // Update the active object based on current parameters
+    void updateUpdater()
+    {
+        imageUpdater.program = shader;
+        imageUpdater.maxCurrentImage = getImageDepth();
+        imageUpdater.period = getAnimationPeriod();
+        switch (sourceLayout.sourceWidth)
+        {
+            case MaplyIProWidth4Bits:
+                imageUpdater.slicesPerImage = 8;
+                break;
+            case MaplyIProWidth8Bits:
+                imageUpdater.slicesPerImage = 4;
+                break;
+            case MaplyIProWidthWhole:
+                imageUpdater.slicesPerImage = 0;
+                break;
+            default:
+                Log.d("IPro","QuadImageLayer: Unsupported source width for Shader.");
+                break;
+        }
+        switch (temporalInterpolate)
+        {
+            case MaplyIProTemporalNearest:
+                imageUpdater.cubicTemporal = false;
+                break;
+            case MaplyIProTemporalLinear:
+                imageUpdater.cubicTemporal = false;
+                break;
+            case MaplyIProTemporalCubic:
+                imageUpdater.cubicTemporal = true;
+                break;
+        }
+        imageUpdater.debugMode = false;
+        imageUpdater.imageDepth = getImageDepth();
+
+        maplyControl.addActiveObject(imageUpdater);
+        imageUpdater.debugMode = debugMode;
     }
 
     /**
@@ -621,20 +669,11 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * If set to non-zero right after layer creation we'll run through all the available images (in each tile) over the given period.  This only makes sense if you've got more than one image per tile.
      * If you want tighter control use the currentImage property and set your own timer.
      */
-    public void setAnimationPeriod(float period) {
+    public void setAnimationPeriod(double period) {
         animationPeriod = period;
-        if (maplyControl == null)
-            return;
 
-        if (imageUpdater != null) {
-            maplyControl.removeActiveObject(imageUpdater);
-            imageUpdater = null;
-        }
-
-        if (period > 0.0) {
-            imageUpdater = new ImageUpdater(this,period);
-            maplyControl.addActiveObject(imageUpdater);
-        }
+        if (imageUpdater != null)
+            imageUpdater.period = animationPeriod;
     }
 
     /**
@@ -999,12 +1038,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      */
     public void setRampImage(Bitmap inRampImage)
     {
-        Bitmap rampImpage = inRampImage;
+        rampImage = inRampImage;
 
         // Set up a MaplyTexture
         if (shader != null)
         {
-            MaplyTexture tex = maplyControl.addTexture(rampImpage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+            MaplyTexture tex = maplyControl.addTexture(rampImage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
             shader.addTexture("s_colorRamp",tex);
         }
     }
@@ -1029,7 +1068,16 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         spatialInterpolate = inVal;
     }
 
-
+    boolean debugMode = true;
+    /**
+     * Turn on a lot of output.
+     */
+    public void setDebugMode(boolean inDebugMode)
+    {
+        debugMode = inDebugMode;
+        if (imageUpdater != null)
+            imageUpdater.debugMode = debugMode;
+    }
 
     native void nativeShutdown(ChangeSet changes);
 

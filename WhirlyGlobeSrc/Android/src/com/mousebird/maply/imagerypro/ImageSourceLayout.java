@@ -25,33 +25,33 @@ public class ImageSourceLayout
      * <br>
      * This is the number of slices we'll find in a single image.  Should be 3 or 4.
      */
-    public int slicesPerImage;
+    public int slicesPerImage = 1;
 
     /**
      * Set if we're dealing with indexed data.
      * <br>
      * Set this if the data sources is indexed lookup data rather in color.
      */
-    public boolean indexed;
+    public boolean indexed = false;
 
     /**
      * The size of a single slices in the image.
      * <br>
      * Slices within an image can be 8 bits or the whole image.
      */
-    public MaplyIProSourceWidth sourceWidth;
+    public MaplyIProSourceWidth sourceWidth = MaplyIProSourceWidth.MaplyIProWidthWhole;
 
     /**
      * Layout of the bytes within the pixel.
      * <br>
      * The image pixels can be a laid out in a variety of ways.
      */
-    public MaplyIProSourcePixelOrder pixelOrder;
+    public MaplyIProSourcePixelOrder pixelOrder = MaplyIProSourcePixelOrder.MaplyIProOrderRGBA;
 
     /**
      * Number of slices in the last image source in the list.
      * <br>
      * The number of time slices doesn't always neatly divide into 4 or 8.  You may be left with empty ones.  Set this to deal with that case.
      */
-    public int slicesInLastImage;
+    public int slicesInLastImage = 1;
 }

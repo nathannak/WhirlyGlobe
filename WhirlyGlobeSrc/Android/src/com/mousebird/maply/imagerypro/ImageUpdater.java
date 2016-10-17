@@ -7,6 +7,7 @@ import com.mousebird.maply.ChangeSet;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point4d;
 import com.mousebird.maply.Shader;
+import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 
 /** The Image Updater is called every frame to decide what image is being shown.
  * This object controls what part of the image stack is being displayed.
@@ -27,7 +28,7 @@ public class ImageUpdater implements ActiveObject
     /**
      * brief The period over which we'll switch them all
      */
-    public double period;
+    public double period = 0.0;
 
     /**
      * Start time, for offset purposes
@@ -37,17 +38,17 @@ public class ImageUpdater implements ActiveObject
     /**
      * Set to 0 if there are no slices, otherwise the number of slices in a single texel
      */
-    public int slicesPerImage;
+    public int slicesPerImage = 0;
 
     /**
      * If set we're doing cubic interpolation over the slices (time)
      */
-    public boolean cubicTemporal;
+    public boolean cubicTemporal = false;
 
     /**
      * If set we'll print way too much information
      */
-    public boolean debugMode;
+    public boolean debugMode = false;
 
     int imageDepth = 0;
 
@@ -57,12 +58,11 @@ public class ImageUpdater implements ActiveObject
     double lastUpdate;
     boolean doUpdate = true;
 
-    ImageUpdater(QuadImageTileLayer inImageLayer,double inPeriod)
+    ImageUpdater(QuadImageTileLayer inImageLayer)
     {
         imageLayer = inImageLayer;
         maplyControl = imageLayer.maplyControl;
         imageDepth = imageLayer.getImageDepth();
-        period = inPeriod;
         startTime = System.currentTimeMillis()/1000.0;
         if (imageLayer.getImageDepth() > 1)
             startTime = startTime-imageLayer.getCurrentImage()/imageLayer.getImageDepth() * period;
@@ -180,7 +180,7 @@ public class ImageUpdater implements ActiveObject
             program.setUniform("u_interp",t);
 
             if (debugMode)
-                Log.d("Maply","UpdateForFrame: currentImage = " + where);
+                Log.d("Maply","UpdateForFrame: image0 = " + image0 + " image1 = " + image1 + " currentImage = " + where);
         }
 
         // Update the developer with the time

@@ -12,18 +12,19 @@ import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MaplyImageTile;
 import com.mousebird.maply.MaplyTileID;
 import com.mousebird.maply.QuadImageTileLayerInterface;
+import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 import com.mousebird.maply.imagerypro.RampStackShader;
 
 /**
  * Created by sjg on 10/15/16.
  */
-public class IndexTestTileSource implements com.mousebird.maply.QuadImageTileLayer.TileSource
+public class IndexTestTileSource implements QuadImageTileLayer.TileSource
 {
     MaplyBaseController maplyControl = null;
     int minZoom,maxZoom;
     RampStackShader.IndexType indexType;
     RampStackShader.StackType stackType;
-    int pixelsPerSide = 256;
+    int pixelsPerSide = 128;
 
     public IndexTestTileSource(MaplyBaseController inMaplyControl,int minLevel, int maxLevel, boolean inIndexed, int stackDepth)
     {
@@ -64,7 +65,7 @@ public class IndexTestTileSource implements com.mousebird.maply.QuadImageTileLay
         return pixelsPerSide;
     }
 
-    public void startFetchForTile(final QuadImageTileLayerInterface layer,final MaplyTileID tileID,final int frame)
+    public void startFetchForTile(final QuadImageTileLayerInterface layer, final MaplyTileID tileID, final int frame)
     {
         LayerThread ourLayerThead = maplyControl.getWorkingThread();
 
@@ -102,7 +103,7 @@ public class IndexTestTileSource implements com.mousebird.maply.QuadImageTileLay
                         break;
                 }
 
-                Log.d("IPro","IndexTestTileSource loaded image for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                Log.d("IPro","IndexTestTileSource loaded image for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ") frame = " + frame);
                 layer.loadedTile(tileID, frame, imageTile);
             }
         });
