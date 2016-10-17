@@ -231,3 +231,80 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDouble
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDouble()");
     }
 }
+
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getKeys
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+        Dictionary *dict = classInfo->getObject(env,obj);
+        if (!dict)
+            return NULL;
+
+        std::list<std::string> keys = dict->getKeys();
+        int i = 0;
+
+        jobjectArray ret = (jobjectArray) env->NewObjectArray(keys.size(), env->FindClass("java/lang/String"), env->NewStringUTF(""));
+
+        for (auto it = keys.begin(); it != keys.end(); ++it) {
+            env->SetObjectArrayElement(ret, i, env->NewStringUTF(it->c_str()));
+            ++i;
+        }
+        return ret;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getKeys()");
+    }
+
+    return NULL;
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_AttrDictionary_getType
+(JNIEnv *env, jobject obj, jstring attrNameStr){
+    try
+    {
+        AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+        Dictionary *dict = classInfo->getObject(env,obj);
+        if (!dict)
+            return -1;
+
+        const char *cStr = env->GetStringUTFChars(attrNameStr,0);
+        if (!cStr)
+            return -1;
+        std::string attrName(cStr);
+        env->ReleaseStringUTFChars(attrNameStr, cStr);
+
+        if (dict->hasField(attrName)) {
+            DictionaryType type = dict->getType(attrName);
+            int ret = -1;
+            switch (type) {
+                case DictTypeNone:
+                    ret = -1;
+                    break;
+                case DictTypeString:
+                    ret = 3;
+                    break;
+                case DictTypeInt:
+                    ret = 1;
+                    break;
+                case DictTypeDouble:
+                    ret = 2;
+                    break;
+                case DictTypeObject:
+                    ret = -1;
+                    break;
+                default:
+                    break;
+            }
+            return ret;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getType()");
+    }
+
+    return -1;
+}

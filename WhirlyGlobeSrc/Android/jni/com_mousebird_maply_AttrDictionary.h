@@ -7,6 +7,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_mousebird_maply_AttrDictionary_TYPE_INT
+#define com_mousebird_maply_AttrDictionary_TYPE_INT 1L
+#undef com_mousebird_maply_AttrDictionary_TYPE_DOUBLE
+#define com_mousebird_maply_AttrDictionary_TYPE_DOUBLE 2L
+#undef com_mousebird_maply_AttrDictionary_TYPE_STRING
+#define com_mousebird_maply_AttrDictionary_TYPE_STRING 3L
 /*
  * Class:     com_mousebird_maply_AttrDictionary
  * Method:    getString
@@ -54,6 +60,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setInt
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDouble
   (JNIEnv *, jobject, jstring, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    getKeys
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getKeys
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    getType
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_AttrDictionary_getType
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_mousebird_maply_AttrDictionary

@@ -28,7 +28,11 @@ package com.mousebird.maply;
  *
  */
 public class AttrDictionary
-{	
+{
+	public static final int TYPE_INT = 1;
+	public static final int TYPE_DOUBLE = 2;
+	public static final int TYPE_STRING = 3;
+
 	/**
 	 * Construct an empty attribution dictionary
 	 */
@@ -78,6 +82,50 @@ public class AttrDictionary
 	 * @param attrVal Double value to set.
      */
 	public native void setDouble(String attrName,double attrVal);
+
+
+	/**
+	 * Return all the keys contained in the array
+	 * @return
+     */
+	public native String[] getKeys();
+
+	public native int getType(String attrName);
+
+	public String toString() {
+		StringBuffer content = new StringBuffer(64);
+
+		content.append('{');
+		content.append('\n');
+
+		String[] keys = getKeys();
+
+		for (int i = 0; i < keys.length; i++) {
+			content.append('\t');
+			content.append(keys[i]);
+			content.append('=');
+
+			switch (getType(keys[i])) {
+				case TYPE_STRING:
+					content.append(getString(keys[i]));
+					break;
+
+				case TYPE_DOUBLE:
+					content.append(getDouble(keys[i]));
+					break;
+
+				case TYPE_INT:
+					content.append(getInt(keys[i]));
+					break;
+			}
+			content.append('\n');
+		}
+
+		content.append('}');
+		content.append('\n');
+
+		return content.toString();
+	}
 	
 	static
 	{
