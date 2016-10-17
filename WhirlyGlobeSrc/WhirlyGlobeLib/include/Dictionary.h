@@ -86,6 +86,8 @@ public:
     // Write data to a raw data buffer
     void asRawData(MutableRawData *rawData);
     
+    std::list<std::string> getKeys();
+    
 protected:
     class Value
     {

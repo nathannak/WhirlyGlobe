@@ -333,4 +333,15 @@ void Dictionary::setObject(const std::string &name, DelayedDeletableRef obj)
     fields[name] = oVal;
 }
     
+std::list<std::string> Dictionary::getKeys()
+{
+    std::list<std::string> keys;
+
+    for (auto iterator = fields.begin(); iterator != fields.end(); iterator++){
+        keys.push_back(iterator->first);
+    }
+
+    return keys;
+}
+
 }
