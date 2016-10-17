@@ -23,8 +23,22 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
-import com.mousebird.maply.*;
+import com.mousebird.maply.ChangeSet;
+import com.mousebird.maply.CoordSystem;
+import com.mousebird.maply.Layer;
+import com.mousebird.maply.LayerThread;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.MaplyImageTile;
+import com.mousebird.maply.MaplyRenderer;
+import com.mousebird.maply.MaplyTexture;
+import com.mousebird.maply.MaplyTileID;
+import com.mousebird.maply.Point2d;
+import com.mousebird.maply.QuadImageTileLayerInterface;
+import com.mousebird.maply.Scene;
+import com.mousebird.maply.Shader;
+import com.mousebird.maply.ViewState;
 
 /**
  * The quad image tiling layer manages a self contained basemap.  Basemaps are
@@ -160,6 +174,11 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     public void startLayer(LayerThread layerThread)
     {
         super.startLayer(layerThread);
+
+        // Build the Shader if it isn't set already
+        if (shader == null)
+            shader = generateShader();
+
         layerThread.addWatcher(this);
         Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
         Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
@@ -182,6 +201,89 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 
         if (startEnable != true)
             setEnable(startEnable);
+    }
+
+    /**
+     * Builds a Shader based on local parameters.
+     * @return
+     */
+    Shader generateShader()
+    {
+        RampStackShader shaderGen = new RampStackShader();
+        shaderGen.setTexelInputType(RampStackShader.TexelInputType.TexelWhole.ordinal());
+        if (sourceLayout.indexed)
+            shaderGen.setIndexType(RampStackShader.IndexType.IndexOn.ordinal());
+        else
+            shaderGen.setIndexType(RampStackShader.IndexType.IndexOff.ordinal());
+        switch (sourceLayout.sourceWidth)
+        {
+            case MaplyIProWidth4Bits:
+                shaderGen.setStackType(RampStackShader.StackType.Stack4Bits.ordinal());
+                break;
+            case MaplyIProWidth8Bits:
+                shaderGen.setStackType(RampStackShader.StackType.Stack8Bits.ordinal());
+                break;
+            case MaplyIProWidthWhole:
+                shaderGen.setStackType(RampStackShader.StackType.StackWhole.ordinal());
+                break;
+            default:
+                Log.d("IPro","QuadImageLayer: Unsupported source width for shader generator");
+                break;
+        }
+        switch (sourceLayout.pixelOrder)
+        {
+            case MaplyIProOrderRGBA:
+                shaderGen.setPixelByteOrder(RampStackShader.PixelByteOrderType.OrderRGBA.ordinal());
+                break;
+            case MaplyIProWidthABGR:
+                shaderGen.setPixelByteOrder(RampStackShader.PixelByteOrderType.OrderABGR.ordinal());
+                break;
+        }
+        shaderGen.setStackCount(0);
+        switch (temporalInterpolate)
+        {
+            case MaplyIProTemporalNearest:
+                shaderGen.setTemporalInterpolation(RampStackShader.TemporalInterpType.NearestInterpTemporal.ordinal());
+                break;
+            case MaplyIProTemporalLinear:
+                shaderGen.setTemporalInterpolation(RampStackShader.TemporalInterpType.LinearInterpTemporal.ordinal());
+                break;
+            case MaplyIProTemporalCubic:
+                shaderGen.setTemporalInterpolation(RampStackShader.TemporalInterpType.CubicInterpTemporal.ordinal());
+                break;
+        }
+        switch (spatialInterpolate)
+        {
+            case MaplyIProSpatialBilinear:
+                shaderGen.setSpatialInterpolation(RampStackShader.SpatialInterpType.BilinearInterpSpatial.ordinal());
+                break;
+            case MaplyIProSpatialBicubic:
+                shaderGen.setSpatialInterpolation(RampStackShader.SpatialInterpType.BicubicInterpSpatial.ordinal());
+                break;
+        }
+
+        String vertShader,fragShader,errStr;
+        String errString = shaderGen.generateShaders();
+        if (errString != null)
+        {
+            Log.e("IPro","Failed to generate shader in MaplyIProQuadImagesLayer.  Using default shader.  Error:\n" + errString);
+        }
+        vertShader = shaderGen.getVertexShader();
+        fragShader = shaderGen.getFragmentShader();
+
+        shader = new Shader("Generated ImageryPro Shader",vertShader,fragShader,maplyControl);
+        if (!shader.valid())
+        {
+            Log.e("IPro","Failed to set up shader " + shader.getName() + " Here's the code:\nVertex Shader:\n" + vertShader + "\nFragment Shader:\n" + fragShader);
+        } else {
+            maplyControl.addShaderProgram(shader,shader.getName());
+            if (rampImage != null)
+                setRampImage(rampImage);
+            shader.setUniform("u_textureAtlasSize",textureAtlasSize);
+            shader.setUniform("u_textureAtlasSizeInv",1.0/textureAtlasSize);
+        }
+
+        return shader;
     }
 
     /**
@@ -673,11 +775,18 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      */
     public native void setImportanceScale(float scale);
 
+    int textureAtlasSize = 2048;
     /** Set the (power of two) size of texture atlases the layer will create.
      * The system makes extensive use of texture atlases for rendering tiles.  Typically we'll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.
      * This option controls the size of those texture atlases.  It's set to 2048 by default (2048x2048 texels).  If you're going to change it, set it to 1024, but don't go any lower unless you know something we don't.  It must always be a power of 2.
      */
-    public native void setTextureAtlasSize(int size);
+    public void setTextureAtlasSize(int size)
+    {
+        textureAtlasSize = size;
+        setTextureAtlasSizeNative(size);
+    }
+
+    native void setTextureAtlasSizeNative(int size);
 
     /**
      * Enumerated values for image types.
@@ -792,15 +901,16 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     }
     private native void setInternalImageFormatNative(int iVal);
 
+    ImageSourceLayout sourceLayout = null;
+
     /** The source layout controls how we treat the input data.
      * <br>
      * The source layout object tells the system how to treat the input data and decode it.  Consult MaplyIProImageSourceLayout for details.
      */
-    public void setSourceLayout(ImageSourceLayout sourceLayout)
+    public void setSourceLayout(ImageSourceLayout inLayout)
     {
-        setSourceLayoutNative(sourceLayout.slicesPerImage,sourceLayout.indexed,sourceLayout.sourceWidth.ordinal(),sourceLayout.pixelOrder.ordinal(),sourceLayout.slicesInLastImage);
+        sourceLayout = inLayout;
     }
-    private native void setSourceLayoutNative(int slicesPerImage,boolean indexed,int sourceWidth,int pixelOrder,int slicesInLastImage);
 
     /**
      * Fill in the interface for the position feedback and you can set the position manually every frame.
@@ -871,9 +981,15 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      */
     public void setShader(Shader shader)
     {
+        if (rampImage != null)
+            setRampImage(rampImage);
         setShaderNative(shader.getID());
     }
     private native void setShaderNative(long shaderID);
+
+    // Shader is either generated or passed in
+    protected Shader shader = null;
+    protected Bitmap rampImage;
 
     /** For indexed data sets the image we'll index into.
      * <br>
@@ -881,26 +997,39 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * For 8 bit lookup you'll need a ramp image of at least 256x1.
      * Put your various colors in each of those pixels or use the MaplyColorRampGenerator to generate an image.
      */
-    public native void setRampImage(Bitmap rampImage);
+    public void setRampImage(Bitmap inRampImage)
+    {
+        Bitmap rampImpage = inRampImage;
+
+        // Set up a MaplyTexture
+        if (shader != null)
+        {
+            MaplyTexture tex = maplyControl.addTexture(rampImpage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+            shader.addTexture("s_colorRamp",tex);
+        }
+    }
+
+    MaplyIProTemporalInterpolation temporalInterpolate = MaplyIProTemporalInterpolation.MaplyIProTemporalLinear;
+    MaplyIProSpatialInterpolation spatialInterpolate = MaplyIProSpatialInterpolation.MaplyIProSpatialBilinear;
 
     /** Controls how the layer displays things in time (position).
      * <br>
      * There are a variety of interpolation modes among the image stack (think time).  None are terribly expensive on the device since they're just interpolation among layers.
      */
-    public void setTemporalInterpolate(MaplyIProTemporalInterpolation temporalInterpolate)
+    public void setTemporalInterpolate(MaplyIProTemporalInterpolation inVal)
     {
-        setTemporalInterpolateNative(temporalInterpolate.ordinal());
+        temporalInterpolate = inVal;
     }
-    private native void setTemporalInterpolateNative(int iVal);
 
     /** Controls how the layer displays things in space.
      * The quad images layer can let the normal bilinear interpolation that OpenGL ES provides happen or it can override that with a more expensive bicubic interpolation.
      */
-    public void setSpatialInterpolate(MaplyIProSpatialInterpolation spatialInterpolate)
+    public void setSpatialInterpolate(MaplyIProSpatialInterpolation inVal)
     {
-        setSpatialInterpolateNative(spatialInterpolate.ordinal());
+        spatialInterpolate = inVal;
     }
-    private native void setSpatialInterpolateNative(int iVal);
+
+
 
     native void nativeShutdown(ChangeSet changes);
 

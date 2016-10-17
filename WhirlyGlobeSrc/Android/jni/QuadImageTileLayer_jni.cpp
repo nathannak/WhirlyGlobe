@@ -22,7 +22,7 @@
 #import <jni.h>
 #import <android/bitmap.h>
 #import "Maply_jni.h"
-#import "com_mousebird_maply_imagerypro_QuadImageTileLayer.h"
+#import "com_mousebird_maply_QuadImageTileLayer.h"
 #import "WhirlyGlobe.h"
 #import "ImageWrapper.h"
 

@@ -57,7 +57,6 @@ public:
 	bool enable;
 	float fade;
 	RGBAColor color;
-	int imageFormat;
 	float currentImage;
 	bool animationWrap;
 	int maxCurrentImage;
@@ -69,9 +68,10 @@ public:
 	int tileSize;
 	std::vector<int> levelLoads;
 	ViewState *lastViewState;
-        std::string shaderName;
-        SimpleIdentity shaderID;
+    SimpleIdentity shaderID;
     JavaVM* jvm;
+    
+    int internalImageFormat;
 
 	// Methods for Java quad image layer
     jmethodID startFetchJava,scheduleEvalStepJava;
@@ -80,9 +80,9 @@ public:
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
 		  simultaneousFetches(1), tileLoader(NULL), minVis(0.0), maxVis(10.0),
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
-		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
+		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL), control(NULL),scheduleEvalStepJava(0)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL), control(NULL),scheduleEvalStepJava(0),  internalImageFormat(0)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -132,12 +132,10 @@ public:
 	    tileLoader->setEnable(enable,changes);
 //	    tileLoader->setFade(fade,changes);
 	    tileLoader->setUseTileCenters(false);
-	    switch (imageFormat)
+	    switch (internalImageFormat)
 	    {
-//        case MaplyImageIntRGBA:
 //        case MaplyImage4Layer8Bit:
 	    case 0:
-	    case 16:
         default:
             tileLoader->setImageType(WKTileIntRGBA);
             break;
@@ -153,60 +151,13 @@ public:
         case 3:
             tileLoader->setImageType(WKTileUShort5551);
             break;
-//        case MaplyImageUByteRed:
+//        case MaplyImageUByte:
         case 4:
-            tileLoader->setImageType(WKTileUByteRed);
-            break;
-//        case MaplyImageUByteGreen:
-        case 5:
-            tileLoader->setImageType(WKTileUByteGreen);
-            break;
-//        case MaplyImageUByteBlue:
-        case 6:
-            tileLoader->setImageType(WKTileUByteBlue);
-            break;
-//        case MaplyImageUByteAlpha:
-        case 7:
-            tileLoader->setImageType(WKTileUByteAlpha);
-            break;
-//        case MaplyImageUByteRGB:
-        case 8:
             tileLoader->setImageType(WKTileUByteRGB);
-            break;
-//        case MaplyImageETC2RGB8:
-        case 9:
-            tileLoader->setImageType(WKTileETC2_RGB8);
-            break;
-//        case MaplyImageETC2RGBA8:
-        case 10:
-            tileLoader->setImageType(WKTileETC2_RGBA8);
-            break;
-//        case MaplyImageETC2RGBPA8:
-        case 11:
-            tileLoader->setImageType(WKTileETC2_RGB8_PunchAlpha);
-            break;
-//        case MaplyImageEACR11:
-        case 12:
-            tileLoader->setImageType(WKTileEAC_R11);
-            break;
-//        case MaplyImageEACR11S:
-        case 13:
-            tileLoader->setImageType(WKTileEAC_R11_Signed);
-            break;
-//        case MaplyImageEACRG11:
-        case 14:
-            tileLoader->setImageType(WKTileEAC_RG11);
-            break;
-//        case MaplyImageEACRG11S:
-        case 15:
-            tileLoader->setImageType(WKTileEAC_RG11_Signed);
             break;
 	    }
 	    tileLoader->setColor(color);
 
-	    // This will force the shader setup
-	    if (!shaderName.empty())
-	      setShaderName(shaderName);
 	    setCurrentImage(currentImage,changes);
 
 	    return tileLoader;
@@ -231,9 +182,7 @@ public:
 			control->setFrameLoadingPriorities(framePriorities);
 		control->setMaxTiles(maxTiles);
 
-		// Note: Porting  Set up the shader
-
-		// Note: Porting  Move this everywhere
+		// Note: Porting  Move this elsewhere
 		if (this->useTargetZoomLevel)
 		{
 			shortCircuitImportance = 256*256;
@@ -247,12 +196,6 @@ public:
 	    {
 	        if (animationWrap && maxCurrentImage == -1)
 	            maxCurrentImage = imageDepth;
-
-	        if (shaderID == EmptyIdentity)
-	            shaderID = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
-
-//	        if (animationPeriod > 0.0)
-//	        	setAnimationPeriod(animationPeriod);
 	    }
 	}
 
@@ -260,16 +203,6 @@ public:
 	{
 	    animationPeriod = newAnimationPeriod;
 	}
-
-        void setShaderName(const std::string &newName)
-        {
-	  shaderName = newName;
-	  if (scene && tileLoader)
-	  {
-	      shaderID = scene->getProgramIDBySceneName(shaderName.c_str());
-	      tileLoader->setProgramId(shaderID);
-	  }
-        }    
 
 	// Change which image is displayed (or interpolation thereof)
 	void setCurrentImage(float newCurrentImage,ChangeSet &changes)
@@ -604,13 +537,13 @@ public:
     }
 };
 
-typedef JavaClassInfo<ImageryPro_QuadImageLayerAdapter> QILAdapterClassInfo;
-template<> QILAdapterClassInfo *QILAdapterClassInfo::classInfoObj = NULL;
+typedef JavaClassInfo<ImageryPro_QuadImageLayerAdapter> IProQILAdapterClassInfo;
+template<> IProQILAdapterClassInfo *IProQILAdapterClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeInit
   (JNIEnv *env, jclass cls)
 {
-	QILAdapterClassInfo::getClassInfo(env,cls);
+	IProQILAdapterClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_initialise
@@ -624,7 +557,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_in
 			return;
 
 		ImageryPro_QuadImageLayerAdapter *adapter = new ImageryPro_QuadImageLayerAdapter(coordSys);
-		QILAdapterClassInfo::getClassInfo()->setHandle(env,obj,adapter);
+		IProQILAdapterClassInfo::getClassInfo()->setHandle(env,obj,adapter);
 		adapter->setJavaRefs(env,obj);
 	}
 	catch (...)
@@ -640,7 +573,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_di
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
@@ -663,7 +596,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet || !adapter->tileLoader)
@@ -683,7 +616,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -702,7 +635,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -719,7 +652,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
 {
     try
     {
-        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
         ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
         if (!adapter)
             return 1;
@@ -738,7 +671,7 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return 0.0;
@@ -758,7 +691,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet)
@@ -778,7 +711,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -795,7 +728,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -813,7 +746,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -830,7 +763,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -853,7 +786,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
 {
     try
     {
-        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
         ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
         if (!adapter || !adapter->control)
             return -1;
@@ -893,7 +826,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !frameLoadingArr || !changeSet)
@@ -918,7 +851,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet)
@@ -937,7 +870,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -954,7 +887,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -966,12 +899,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTextureAtlasSize
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTextureAtlasSizeNative
   (JNIEnv *env, jobject obj, jint atlasSize)
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -979,24 +912,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setTextureAtlasSize()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setImageFormat
-  (JNIEnv *env, jobject obj, jint imageFormat)
-{
-	try
-	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
-		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
-		if (!adapter)
-			return;
-		adapter->imageFormat = imageFormat;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setImageFormat()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setTextureAtlasSizeNative()");
 	}
 }
 
@@ -1005,7 +921,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return 0;
@@ -1024,7 +940,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -1041,7 +957,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -1060,7 +976,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter || !adapter->lastViewState)
 			return 0;
@@ -1081,7 +997,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_re
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet)
@@ -1102,7 +1018,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -1119,7 +1035,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -1136,7 +1052,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
@@ -1151,7 +1067,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setHandleEdges
   (JNIEnv *env, jobject obj, jboolean newVal)
 {
-	QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+	IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 	ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 	if (!adapter)
 		return;
@@ -1161,7 +1077,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCoverPoles
   (JNIEnv *env, jobject obj, jboolean newVal)
 {
-	QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+	IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 	ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 	if (!adapter)
 		return;
@@ -1171,7 +1087,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setVisibility
   (JNIEnv *env, jobject obj, jdouble minVis, jdouble maxVis)
 {
-	QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+	IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 	ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 	if (!adapter)
 		return;
@@ -1184,7 +1100,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env,llObj);
 		Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env,urObj);
@@ -1208,7 +1124,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 {
 	try
 	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
@@ -1227,7 +1143,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 {
 	try
 	{
-		ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+		ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ViewState *viewState = ViewStateClassInfo::getClassInfo()->getObject(env,viewStateObj);
 		if (!adapter || !viewState)
 			return;
@@ -1247,7 +1163,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLaye
 {
 	try
 	{
-		ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+		ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
 			return false;
@@ -1270,7 +1186,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLaye
 {
 	try
 	{
-		ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+		ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
 			return false;
@@ -1295,7 +1211,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 {
 	try
 	{
-		ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+		ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
 		  {
@@ -1342,7 +1258,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 {
     try
     {
-        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
         if (!adapter || !changes || !bitmapsObj)
         {
@@ -1402,7 +1318,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 {
 	try
 	{
-		ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+		ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
 			return;
@@ -1422,28 +1338,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
     try
     {
-        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
         if (!adapter)
             return;
+        
+        adapter->internalImageFormat = imageFormat;
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setInternalImageFormatNative()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSourceLayoutNative
-(JNIEnv *env, jobject obj, jint slicesPerImage,jboolean indexed,jint sourceWidth,jint pixelOrder,jint slicesInLastImage)
-{
-    try
-    {
-        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
-        if (!adapter)
-            return;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setSourceLayoutNative()");
     }
 }
 
@@ -1452,57 +1355,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
     try
     {
-        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        ImageryPro_QuadImageLayerAdapter *adapter = IProQILAdapterClassInfo::getClassInfo()->getObject(env,obj);
         if (!adapter)
             return;
+        
+        adapter->shaderID = shaderID;
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setShaderNative()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setRampImage
-(JNIEnv *env, jobject obj, jobject bitmapObj)
-{
-    try
-    {
-        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
-        if (!adapter)
-            return;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setRampImage()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTemporalInterpolateNative
-(JNIEnv *env, jobject obj, jint interp)
-{
-    try
-    {
-        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
-        if (!adapter)
-            return;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setTemporalInterpolateNative()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSpatialInterpolateNative
-(JNIEnv *env, jobject obj, jint interp)
-{
-    try
-    {
-        ImageryPro_QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
-        if (!adapter)
-            return;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setSpatialInterpolateNative()");
     }
 }

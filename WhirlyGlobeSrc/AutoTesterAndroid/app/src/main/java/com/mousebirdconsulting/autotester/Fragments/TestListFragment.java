@@ -17,35 +17,8 @@ import com.mousebirdconsulting.autotester.Framework.MaplyDownloadManager;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
-import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
-import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
-import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
-import com.mousebirdconsulting.autotester.TestCases.BoundsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ClusteredMarkersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
-import com.mousebirdconsulting.autotester.TestCases.CoordConversionTestCase;
-import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
-import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
-import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
-import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
-import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
-import com.mousebirdconsulting.autotester.TestCases.LocalVectorTileTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MarkersAndLinesTestCase;
-import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
-import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
-import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
-import com.mousebirdconsulting.autotester.TestCases.StartupShutdownTestCase;
-import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
+import com.mousebirdconsulting.autotester.TestCases.IndexWholeTestCase;
 
 import java.util.ArrayList;
 
@@ -102,36 +75,8 @@ public class TestListFragment extends Fragment {
 
 		TestListAdapter() {
 			testCases = new ArrayList<>();
-			testCases.add(new StamenRemoteTestCase(getActivity()));
 			testCases.add(new CartoDBMapTestCase(getActivity()));
-			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
-			testCases.add(new VectorsTestCase(getActivity()));
-			testCases.add(new ScreenLabelsTestCase(getActivity()));
-			testCases.add(new ScreenMarkersTestCase(getActivity()));
-			testCases.add(new AnimatedScreenMarkersTestCase(getActivity()));
-			testCases.add(new ClusteredMarkersTestCase(getActivity()));
-			testCases.add(new StickersTestCase(getActivity()));
-			testCases.add(new GestureFeedbackTestCase(getActivity()));
-			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
-			testCases.add(new ParticleSystemTestCase(getActivity()));
-			testCases.add(new ComplexParticleSystemTestCase(getActivity()));
-			testCases.add(new CustomBNGTileSource(getActivity()));
-			testCases.add(new CustomBNGCoordAdapter(getActivity()));
-			testCases.add(new MaplyStarModelTestCase(getActivity()));
-			testCases.add(new ComponentObjectLeakTestCase(getActivity()));
-			testCases.add(new ShapesTestCase(getActivity()));
-			testCases.add(new AtmosphereTestCase(getActivity()));
-			testCases.add(new LightingTestCase(getActivity()));
-			testCases.add(new MBTilesImageTestCase(getActivity()));
-			testCases.add(new BillboardTestCase(getActivity()));
-			testCases.add(new LocalVectorTileTestCase(getActivity()));
-			testCases.add(new PagingLayerTestCase(getActivity()));
-			testCases.add(new CoordConversionTestCase(getActivity()));
-			testCases.add(new StartupShutdownTestCase(getActivity()));
-			testCases.add(new MarkersAndLinesTestCase(getActivity()));
-			testCases.add(new BoundsTestCase(getActivity()));
-			testCases.add(new LayerShutdownTestCase(getActivity()));
-//			testCases.add(new ArealTestCase(getActivity()));
+			testCases.add(new IndexWholeTestCase(getActivity()));
 		}
 
 		public void downloadResources() {

@@ -113,10 +113,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 
 /*
  * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
- * Method:    setTextureAtlasSize
+ * Method:    setTextureAtlasSizeNative
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTextureAtlasSize
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTextureAtlasSizeNative
   (JNIEnv *, jobject, jint);
 
 /*
@@ -217,43 +217,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 
 /*
  * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
- * Method:    setSourceLayoutNative
- * Signature: (IZIII)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSourceLayoutNative
-  (JNIEnv *, jobject, jint, jboolean, jint, jint, jint);
-
-/*
- * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
  * Method:    setShaderNative
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setShaderNative
   (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
- * Method:    setRampImage
- * Signature: (Landroid/graphics/Bitmap;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setRampImage
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
- * Method:    setTemporalInterpolateNative
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTemporalInterpolateNative
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
- * Method:    setSpatialInterpolateNative
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSpatialInterpolateNative
-  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_mousebird_maply_imagerypro_QuadImageTileLayer
