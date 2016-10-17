@@ -19,6 +19,7 @@ WhirlyGlobeSrc/AutoTesterAndroid/.idea
 nohup.out
 WhirlyGlobeSrc/MaplyAndroidTester/gdb_jniLibs
 WhirlyGlobeSrc/Android/bin
+WhirlyGlobeSrc/Android/libs
 lint.xml
 #*#
 WhirlyGlobeSrc/MaplyAndroidTester/app/src/main/jniLibs
@@ -33,3 +34,4 @@ gradlew.bat
 WhirlyGlobeSrc/MaplyAndroidTester/app/libs
 gradle-wrapper.jar
 gradle-wrapper.properties
+.DS_Store
