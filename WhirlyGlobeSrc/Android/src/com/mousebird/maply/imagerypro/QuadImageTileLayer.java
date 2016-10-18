@@ -82,43 +82,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     {
     }
 
-    /**
-     * The Tile Source is the interface used to actually fetch individual images for tiles.
-     * You fill this in to provide data for remote or local tile queries.
-     *
-     * @author sjg
-     *
-     */
-    public interface TileSource
-    {
-        /**
-         * The minimum zoom level you'll be called about to create a tile for.
-         */
-        public int minZoom();
-        /**
-         * The maximum zoom level you'll be called about to create a tile for.
-         */
-        public int maxZoom();
-        /**
-         * The number of pixels square for each tile.
-         */
-        public int pixelsPerSide();
-
-        /**
-         * This tells you when to start fetching a given tile. When you've fetched
-         * the image you'll want to call loadedTile().  If you fail to fetch an image
-         * call that with nil.
-         *
-         * @param layer The layer asking for the fetch.
-         * @param tileID The tile ID to fetch.
-         * @param frame If the source support multiple frames, this is the frame.  Otherwise -1.
-         */
-        public void startFetchForTile(QuadImageTileLayerInterface layer, MaplyTileID tileID, int frame);
-    }
-
     public MaplyBaseController maplyControl = null;
     public CoordSystem coordSys = null;
-    TileSource tileSource = null;
+    com.mousebird.maply.QuadImageTileLayer.TileSource tileSource = null;
     boolean flipY = true;
 
     /**
@@ -129,7 +95,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * @param inCoordSys Coordinate system the layer will work in, probably Spherical Mercator.
      * @param inTileSource Tile source for images.
      */
-    public QuadImageTileLayer(MaplyBaseController inMaplyControl,CoordSystem inCoordSys,TileSource inTileSource)
+    public QuadImageTileLayer(MaplyBaseController inMaplyControl,CoordSystem inCoordSys,com.mousebird.maply.QuadImageTileLayer.TileSource inTileSource)
     {
         maplyControl = inMaplyControl;
         coordSys = inCoordSys;

@@ -12,13 +12,12 @@ import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MaplyImageTile;
 import com.mousebird.maply.MaplyTileID;
 import com.mousebird.maply.QuadImageTileLayerInterface;
-import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 import com.mousebird.maply.imagerypro.RampStackShader;
 
 /**
  * Created by sjg on 10/15/16.
  */
-public class IndexTestTileSource implements QuadImageTileLayer.TileSource
+public class IndexTestTileSource implements com.mousebird.maply.QuadImageTileLayer.TileSource
 {
     MaplyBaseController maplyControl = null;
     int minZoom,maxZoom;

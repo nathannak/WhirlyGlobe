@@ -8,31 +8,51 @@ import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebird.maply.imagerypro.ImageSourceLayout;
+import com.mousebird.maply.imagerypro.MultiplexTileSource;
 import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
-import com.mousebirdconsulting.autotester.IndexTestTileSource;
 import com.mousebirdconsulting.autotester.R;
 
+import java.util.ArrayList;
+
 /**
- * Test case for Imagery Pro Quad Images layer.
- * This one just does whole pixel indexing.  No slices.
+ * Test case pointing directly at Met Office data feeds.
  */
-public class IndexWholeTestCase extends MaplyTestCase
+public class MetOffice8BitTestCase extends MaplyTestCase
 {
-    public IndexWholeTestCase(Activity activity) {
+    public MetOffice8BitTestCase(Activity activity) {
         super(activity);
 
-        setTestName("Indexed Image, No slices");
+        setTestName("Met Office 8 bit test case");
         setDelay(20);
         this.implementation = TestExecutionImplementation.Both;
     }
 
-    private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception
-    {
-        IndexTestTileSource tileSource = new IndexTestTileSource(baseController,0,4,true,0);
+    protected String baseURL = "%@";
+
+    private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
+
+        ArrayList<String> tileURLs = new ArrayList<String>();
+        tileURLs.add("1476720000");
+        tileURLs.add("1476748800");
+        tileURLs.add("1476792000");
+        tileURLs.add("1476824400");
+        tileURLs.add("1476835200");
+
+        RemoteTileInfo tileInfos[] = new RemoteTileInfo[tileURLs.size()];
+        int where = 0;
+        for (String url : tileURLs) {
+            tileInfos[where++] = new RemoteTileInfo(
+                    "http://visual-weather-elb-896992404.eu-west-1.elb.amazonaws.com/mapimage/whirlyimg8/Rain/" + url + "/{z}/{x}x{y}.png", null, 5, 7);
+        }
+
+        SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
+        MultiplexTileSource tileSource = new MultiplexTileSource(baseController,tileInfos,coordSystem);
+        tileSource.debugOutput = true;
 
         // Describe the input data sources
         ImageSourceLayout srcLayout = new ImageSourceLayout();
@@ -44,7 +64,6 @@ public class IndexWholeTestCase extends MaplyTestCase
         Bitmap colorramp = BitmapFactory.decodeResource(getActivity().getResources(),
                 R.drawable.colorramp);
 
-        SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
         QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, tileSource);
         baseLayer.setImageDepth(4);
         baseLayer.setSourceLayout(srcLayout);
@@ -52,6 +71,11 @@ public class IndexWholeTestCase extends MaplyTestCase
         baseLayer.setAnimationPeriod(6.0);
         baseLayer.setAnimationWrap(false);
         baseLayer.setRampImage(colorramp);
+        baseLayer.setHandleEdges(false);
+        baseLayer.setCoverPoles(false);
+        baseLayer.setSingleLevelLoading(true);
+
+        baseLayer.setDebugMode(false);
 
         baseLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault+100);
         return baseLayer;
