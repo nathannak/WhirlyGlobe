@@ -253,6 +253,22 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
 	}
 
+	/**
+	 * Return a point in display space.  Display space is close to what's rendered.
+	 * For the globe it's a model space based on a radius of 1.0.
+	 */
+	public Point3d displayPointFromGeo(Point3d geoPt)
+	{
+		CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
+		CoordSystem coordSys = coordAdapter.getCoordSystem();
+		Point3d localPt = coordSys.geographicToLocal(geoPt);
+		if (localPt == null)
+			return null;
+		Point3d dispPt = coordAdapter.localToDisplay(localPt);
+
+		return dispPt;
+	}
+
 	boolean checkCoverage(Mbr mbr,GlobeView theGlobeView,double height)
 	{
 		Point2d centerLoc = mbr.middle();
@@ -395,6 +411,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			if (newQuat != null)
 				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
 		}
+	}
+
+	/**
+	 * This turns on an auto-rotate mode.  The globe will start rotating after a
+	 * delay by the given number of degrees per second.  Very pleasant.
+	 * @param autoRotateInterval Wait this number of seconds after user interaction to auto rotate.
+	 * @param autoRotateDegrees Rotate this number of degrees (not radians) per second.
+     */
+	public void setAutoRotate(float autoRotateInterval,float autoRotateDegrees)
+	{
+		if (gestureHandler != null)
+			gestureHandler.setAutoRotate(autoRotateInterval,autoRotateDegrees);
 	}
 	
 	// Gesture handler

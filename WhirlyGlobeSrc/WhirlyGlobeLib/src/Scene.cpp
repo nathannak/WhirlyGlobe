@@ -39,7 +39,7 @@
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
 #import "WideVectorManager.h"
-//#import "GeometryManager.h"
+#import "GeometryManager.h"
 
 namespace WhirlyKit
 {
@@ -91,6 +91,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 #ifndef MAPLYMINIMAL
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
     addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+    // Geometry manager
+    addManager(kWKGeometryManager, new GeometryManager());
 //    // Loft manager handles lofted polygon geometry
 //    addManager(kWKLoftedPolyManager, new LoftManager());
     // Particle system manager
@@ -134,27 +136,26 @@ Scene::~Scene()
     // Note: Porting
 //    fontTexManager = nil;
     
+    pthread_mutex_lock(&changeRequestLock);
+    auto theChangeRequests = changeRequests;
+    changeRequests.clear();
+    pthread_mutex_unlock(&changeRequestLock);
+
+    for (unsigned int ii=0;ii<theChangeRequests.size();ii++)
+        delete theChangeRequests[ii];
+    
     pthread_mutex_destroy(&managerLock);
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
     pthread_mutex_destroy(&textureLock);
     pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
-    
-    auto theChangeRuquests = changeRequests;
-    changeRequests.clear();
-    for (unsigned int ii=0;ii<theChangeRuquests.size();ii++)
-    {
-        // Note: Tear down change requests?
-        delete theChangeRuquests[ii];
-    }
-    
+
     // Note: Porting
 //    activeModels = nil;
     
     subTextureMap.clear();
 
-    // Note: Should be clearing program out of context somewhere
     for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
          it != glPrograms.end(); ++it)
         delete *it;
@@ -322,7 +323,7 @@ void Scene::addManager(const char *name,SceneManager *manager)
 //    if ([activeModels containsObject:activeModel])
 //    {
 //        [activeModels removeObject:activeModel];
-//        [activeModel shutdown];
+//        [activeModel teardown];
 //    }
 //}
     
@@ -627,6 +628,13 @@ void Scene::removeProgram(SimpleIdentity progId)
     }
     
     pthread_mutex_unlock(&programLock);
+}
+    
+AddTextureReq::~AddTextureReq()
+{
+    if (tex)
+        delete tex;
+    tex = NULL;
 }
     
 void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
