@@ -2,9 +2,9 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.mousebird.maply.ColorRampGenerator;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
@@ -18,7 +18,6 @@ import com.mousebird.maply.imagerypro.MultiplexTileSource;
 import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
-import com.mousebirdconsulting.autotester.R;
 
 import java.util.ArrayList;
 
@@ -72,8 +71,21 @@ public class MetOffice8BitTestCase extends MaplyTestCase
         srcLayout.indexed = true;
         srcLayout.sourceWidth = ImageSourceLayout.MaplyIProSourceWidth.MaplyIProWidth8Bits;
 
-        Bitmap colorramp = BitmapFactory.decodeResource(getActivity().getResources(),
-                R.drawable.colorramp);
+        ColorRampGenerator colorRampGen = new ColorRampGenerator();
+        colorRampGen.addHexColorWithAlpha(0);
+        colorRampGen.addHexColorWithAlpha(840851326);
+        colorRampGen.addHexColorWithAlpha(-1090292239);
+        colorRampGen.addHexColorWithAlpha(-14749335);
+        colorRampGen.addHexColorWithAlpha(-16735488);
+        colorRampGen.addHexColorWithAlpha(-7851);
+        colorRampGen.addHexColorWithAlpha(-30181);
+        colorRampGen.addHexColorWithAlpha(-2542531);
+        colorRampGen.addHexColorWithAlpha(-5046272);
+        colorRampGen.addHexColorWithAlpha(264748993);
+        // Tack on an extra in case of interpolation
+        colorRampGen.addHexColorWithAlpha(264748993);
+        colorRampGen.stretch = false;
+        Bitmap colorramp = colorRampGen.makeImage(256,1);
 
         QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, tileSource);
         baseLayer.setImageDepth(tileURLs.size());
