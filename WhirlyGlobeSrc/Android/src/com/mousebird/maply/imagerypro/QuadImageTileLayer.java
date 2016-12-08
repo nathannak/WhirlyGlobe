@@ -389,6 +389,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
             evalStepRun = null;
         }
 
+        // Note: There's a scene timing problem
+        // Sometimes this hasn't been fully set up
+        if (!rampTexSetup && rampImage != null) {
+            setRampImage(rampImage);
+        }
+
         // Note: Check that the renderer is set up and such.
         ChangeSet changes = new ChangeSet();
         boolean didSomething = nativeEvalStep(changes);
@@ -557,6 +563,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * @return The current image index (or between) being displayed.
      */
     public native float getCurrentImage();
+
+    /**
+     * Set the current image while short circuiting all the various other parts of the system.
+     * Only used internally.
+     */
+    public native void setCurrentImageSimple(float where);
 
     int lastPriority = -1;
 
@@ -995,6 +1007,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     // Shader is either generated or passed in
     protected Shader shader = null;
     protected Bitmap rampImage;
+    MaplyTexture rampTex = null;
+    boolean rampTexSetup = false;
 
     /** For indexed data sets the image we'll index into.
      * <br>
@@ -1009,8 +1023,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         // Set up a MaplyTexture
         if (shader != null)
         {
-            MaplyTexture tex = maplyControl.addTexture(rampImage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
-            shader.addTexture("s_colorRamp",tex);
+            if (rampTex == null)
+                rampTex = maplyControl.addTexture(rampImage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+            rampTexSetup = shader.addTexture("s_colorRamp",rampTex);
         }
     }
 

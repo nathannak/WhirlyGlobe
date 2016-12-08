@@ -39,7 +39,6 @@ public class Index8BitStackTestCase extends MaplyTestCase
         srcLayout.slicesInLastImage = 4;
         srcLayout.indexed = true;
         srcLayout.sourceWidth = ImageSourceLayout.MaplyIProSourceWidth.MaplyIProWidth8Bits;
-        srcLayout.slicesInLastImage = 4;
 
         Bitmap colorramp = BitmapFactory.decodeResource(getActivity().getResources(),
                 R.drawable.colorramp);

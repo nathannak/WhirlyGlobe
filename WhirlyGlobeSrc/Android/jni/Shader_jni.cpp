@@ -130,7 +130,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 (JNIEnv *env, jobject obj, jobject sceneObj, jstring nameStr, jlong texID)
 {
     try
@@ -139,7 +139,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
         OpenGLES2Program *inst = classInfo->getObject(env,obj);
 	Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
         if (!inst || !scene)
-            return;
+            return false;
         
         glUseProgram(inst->getProgram());
 
@@ -152,13 +152,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 	} else {
           __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing texture or GL ID in Shader::addTextureNative(), texID = %d, numTextures = %d",(int)texID,(int)scene->textures.size());
 	  if (tex)
-	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing GL ID in Shader::addTextureNative()");	    
+	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing GL ID in Shader::addTextureNative()");
+        return false;
 	}
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::addTextureNative()");
+        return false;
     }
+    
+    return true;
 }
 
 

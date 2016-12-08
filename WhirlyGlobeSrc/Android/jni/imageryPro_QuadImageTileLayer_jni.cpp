@@ -682,6 +682,26 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_
     return 0.0;
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImageSimple
+(JNIEnv *env, jobject obj, jfloat currentImage)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        //        adapter->env = env;
+        adapter->currentImage = currentImage;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setCurrentImageSimple()");
+    }
+}
+
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImages
 (JNIEnv *env, jobject obj, jint image0, jint image1, jobject changeSetObj)
 {

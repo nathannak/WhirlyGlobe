@@ -189,6 +189,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 								Log.d("Maply","Image decode succeeded second time.");
 					}
 
+					if (bm == null)
+						throw new Exception("Failed to decode image");
+
 					// Save to cache
 					if (cacheFile != null && rawImage != null && bm != null) {
 						OutputStream fOut;

@@ -7,7 +7,6 @@ import com.mousebird.maply.ChangeSet;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point4d;
 import com.mousebird.maply.Shader;
-import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 
 /** The Image Updater is called every frame to decide what image is being shown.
  * This object controls what part of the image stack is being displayed.
@@ -129,6 +128,7 @@ public class ImageUpdater implements ActiveObject
 
         // Change the images to give us start and finish
         ChangeSet changes = new ChangeSet();
+        imageLayer.setCurrentImageSimple((float)where);
         imageLayer.setCurrentImages(image0,image1,changes);
         imageLayer.getLayerThread().scene.addChanges(changes);
 

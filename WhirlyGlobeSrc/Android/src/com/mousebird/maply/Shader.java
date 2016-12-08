@@ -44,7 +44,7 @@ public class Shader
      * @param name The name of the shader program.  Used for identification and sometimes lookup.
      * @param vertexSrc The string containing the full vertex program.
      * @param fragSrc The string containing the full fragment program.
-     * @param control The controller where we'll register the new shader.
+     * @param inControl The controller where we'll register the new shader.
      * @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
      */
 	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController inControl)
@@ -81,9 +81,10 @@ public class Shader
 	/**
 	 * Add a texture for use in the shader.
 	 * @param name Name to be used in the shader.
-	 * @param bitmap Bitmap to pass into the shader.
+	 * @param texture Bitmap to pass into the shader.
+	 * @return Returns true if it succeeded, false on failure.
 	 */
-	public void addTexture(String name,MaplyTexture texture)
+	public boolean addTexture(String name,MaplyTexture texture)
 	{
 		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
 
@@ -93,12 +94,14 @@ public class Shader
 
 //        Log.d("Maply","addTexture texID " + texture.texID);
 
-		addTextureNative(control.getScene(),name,texture.texID);
+		boolean ret = addTextureNative(control.getScene(),name,texture.texID);
 
 		control.clearTempContext(context);
+
+		return ret;
 	}
 
-	native void addTextureNative(Scene scene,String name,long texID);
+	native boolean addTextureNative(Scene scene,String name,long texID);
 	
 	/** Set a float uniform in the shader with the given name.
 	 * <p>

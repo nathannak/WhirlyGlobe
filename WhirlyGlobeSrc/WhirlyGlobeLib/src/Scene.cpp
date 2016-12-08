@@ -636,6 +636,12 @@ AddTextureReq::~AddTextureReq()
         delete tex;
     tex = NULL;
 }
+
+void AddTextureReq::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
+{
+    if (tex)
+        tex->createInGL(memManager);
+}
     
 void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
