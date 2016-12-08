@@ -687,8 +687,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
     try
     {
-        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
-        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
+        ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
         if (!adapter)
             return;
         
@@ -707,7 +707,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 {
 	try
 	{
-		IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
+        IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
 		ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet)
