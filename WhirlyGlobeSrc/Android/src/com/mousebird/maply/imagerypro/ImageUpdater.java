@@ -52,12 +52,12 @@ public class ImageUpdater implements ActiveObject
     int imageDepth = 0;
 
     MaplyBaseController maplyControl = null;
-    QuadImageTileLayer imageLayer = null;
+    IProQuadImageTileLayer imageLayer = null;
 
     double lastUpdate;
     boolean doUpdate = true;
 
-    ImageUpdater(QuadImageTileLayer inImageLayer)
+    ImageUpdater(IProQuadImageTileLayer inImageLayer)
     {
         imageLayer = inImageLayer;
         maplyControl = imageLayer.maplyControl;

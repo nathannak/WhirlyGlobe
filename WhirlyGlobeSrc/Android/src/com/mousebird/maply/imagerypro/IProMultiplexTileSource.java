@@ -9,9 +9,9 @@ import com.mousebird.maply.RemoteTileInfo;
  * <br>
  * This version of the MaplyMultiplexTileSource is slightly smarter about the data coming in.
  */
-public class MultiplexTileSource extends com.mousebird.maply.MultiplexTileSource
+public class IProMultiplexTileSource extends com.mousebird.maply.MultiplexTileSource
 {
-    public MultiplexTileSource(MaplyBaseController inController, RemoteTileInfo[] inSources, CoordSystem inCoordSys)
+    public IProMultiplexTileSource(MaplyBaseController inController, RemoteTileInfo[] inSources, CoordSystem inCoordSys)
     {
         super(inController,inSources,inCoordSys);
     }

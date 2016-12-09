@@ -22,7 +22,7 @@
 #import <jni.h>
 #import <android/bitmap.h>
 #import "Maply_jni.h"
-#import "com_mousebird_maply_imagerypro_QuadImageTileLayer.h"
+#import "com_mousebird_maply_imagerypro_IProQuadImageTileLayer.h"
 #import "WhirlyGlobe.h"
 #import "ImageWrapper.h"
 
@@ -536,13 +536,13 @@ public:
 typedef JavaClassInfo<ImageryPro_QuadImageLayerAdapter> IProQILAdapterClassInfo;
 template<> IProQILAdapterClassInfo *IProQILAdapterClassInfo::classInfoObj = NULL;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeInit
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	IProQILAdapterClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_initialise
   (JNIEnv *env, jobject obj, jobject coordSysObj, jobject changesObj)
 {
 	try
@@ -564,7 +564,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_in
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_dispose
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
@@ -587,7 +587,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_di
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setEnable
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setEnable
   (JNIEnv *env, jobject obj, jboolean enable, jobject changeSetObj)
 {
 	try
@@ -607,7 +607,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setDrawPriority
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setDrawPriority
   (JNIEnv *env, jobject obj, jint drawPriority)
 {
 	try
@@ -626,7 +626,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 }
 
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setImageDepth
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setImageDepth
   (JNIEnv *env, jobject obj, jint imageDepth)
 {
 	try
@@ -643,7 +643,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_getImageDepth
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_getImageDepth
 (JNIEnv *env, jobject obj)
 {
     try
@@ -662,7 +662,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
     return 1;
 }
 
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_getCurrentImage
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_getCurrentImage
   (JNIEnv *env, jobject obj)
 {
 	try
@@ -682,7 +682,7 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_
     return 0.0;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImageSimple
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setCurrentImageSimple
 (JNIEnv *env, jobject obj, jfloat currentImage)
 {
     try
@@ -702,7 +702,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 }
 
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCurrentImages
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setCurrentImages
 (JNIEnv *env, jobject obj, jint image0, jint image1, jobject changeSetObj)
 {
 	try
@@ -722,7 +722,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setMaxCurrentImage
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setMaxCurrentImage
   (JNIEnv *env, jobject obj, jfloat maxCurrentImage)
 {
 	try
@@ -739,7 +739,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setAnimationPeriod
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setAnimationPeriod
   (JNIEnv *env, jobject obj, jfloat period)
 {
 	try
@@ -757,7 +757,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setAnimationWrap
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setAnimationWrap
   (JNIEnv *env, jobject obj, jboolean animationWrap)
 {
 	try
@@ -774,7 +774,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setAllowFrameLoading
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setAllowFrameLoading
   (JNIEnv *env, jobject obj, jboolean frameLoading)
 {
 	try
@@ -797,7 +797,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_getFrameStatusNative
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_getFrameStatusNative
 (JNIEnv *env, jobject obj, jbooleanArray completeArray, jintArray tilesLoadedArray)
 {
     try
@@ -837,7 +837,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
 }
 
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setFrameLoadingPriority
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setFrameLoadingPriority
   (JNIEnv *env, jobject obj, jintArray frameLoadingArr, jobject changeSetObj)
 {
 	try
@@ -862,7 +862,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setColor
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setColor
   (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a, jobject changeSetObj)
 {
 	try
@@ -881,7 +881,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setMaxTiles
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setMaxTiles
   (JNIEnv *env, jobject obj, jint maxTiles)
 {
 	try
@@ -898,7 +898,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setImportanceScale
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setImportanceScale
   (JNIEnv *env, jobject obj, jfloat scale)
 {
 	try
@@ -915,7 +915,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setTextureAtlasSizeNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setTextureAtlasSizeNative
   (JNIEnv *env, jobject obj, jint atlasSize)
 {
 	try
@@ -932,7 +932,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_getBorderTexel
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_getBorderTexel
   (JNIEnv *env, jobject obj)
 {
 	try
@@ -951,7 +951,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setBorderTexel
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setBorderTexel
   (JNIEnv *env, jobject obj, jint borderTexel)
 {
 	try
@@ -968,7 +968,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setMultiLevelLoads
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setMultiLevelLoads
   (JNIEnv *env, jobject obj, jintArray levelLoadsArr)
 {
 	try
@@ -987,7 +987,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_getTargetZoomLevel
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_getTargetZoomLevel
   (JNIEnv *env, jobject obj)
 {
 	try
@@ -1008,7 +1008,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_ge
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_reload
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_reload
   (JNIEnv *env, jobject obj, jobject changeSetObj)
 {
 	try
@@ -1029,7 +1029,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_re
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSimultaneousFetches
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setSimultaneousFetches
   (JNIEnv *env, jobject obj, jint numFetches)
 {
 	try
@@ -1046,7 +1046,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setUseTargetZoomLevel
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setUseTargetZoomLevel
   (JNIEnv *env, jobject obj, jboolean newVal)
 {
 	try
@@ -1063,7 +1063,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setSingleLevelLoading
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setSingleLevelLoading
   (JNIEnv *env, jobject obj, jboolean newVal)
 {
 	try
@@ -1080,7 +1080,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setHandleEdges
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setHandleEdges
   (JNIEnv *env, jobject obj, jboolean newVal)
 {
 	IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
@@ -1090,7 +1090,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	adapter->handleEdges = newVal;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setCoverPoles
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setCoverPoles
   (JNIEnv *env, jobject obj, jboolean newVal)
 {
 	IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
@@ -1100,7 +1100,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	adapter->coverPoles = newVal;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setVisibility
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setVisibility
   (JNIEnv *env, jobject obj, jdouble minVis, jdouble maxVis)
 {
 	IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
@@ -1111,7 +1111,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
 	adapter->maxVis = maxVis;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeStartLayer
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeStartLayer
   (JNIEnv *env, jobject obj, jobject sceneObj, jobject rendererObj, jobject llObj, jobject urObj, jint minZoom, jint maxZoom, jint pixelsPerSide)
 {
 	try
@@ -1135,7 +1135,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeShutdown
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeShutdown
   (JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try
@@ -1154,7 +1154,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeViewUpdate
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeViewUpdate
   (JNIEnv *env, jobject obj, jobject viewStateObj)
 {
 	try
@@ -1174,7 +1174,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeEvalStep
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeEvalStep
   (JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try
@@ -1197,7 +1197,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLaye
     return false;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeRefresh
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeRefresh
   (JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try
@@ -1222,7 +1222,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLaye
     return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeTileDidLoad__IIIILandroid_graphics_Bitmap_2Lcom_mousebird_maply_ChangeSet_2
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeTileDidLoad__IIIILandroid_graphics_Bitmap_2Lcom_mousebird_maply_ChangeSet_2
   (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject bitmapObj, jobject changesObj)
 {
 	try
@@ -1269,7 +1269,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeTileDidLoad__IIII_3Landroid_graphics_Bitmap_2Lcom_mousebird_maply_ChangeSet_2
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeTileDidLoad__IIII_3Landroid_graphics_Bitmap_2Lcom_mousebird_maply_ChangeSet_2
 (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobjectArray bitmapsObj, jobject changesObj)
 {
     try
@@ -1329,7 +1329,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_nativeTileDidNotLoad
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_nativeTileDidNotLoad
   (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject changesObj)
 {
 	try
@@ -1349,7 +1349,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_na
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setInternalImageFormatNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setInternalImageFormatNative
 (JNIEnv *env, jobject obj, jint imageFormat)
 {
     try
@@ -1366,7 +1366,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_se
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_QuadImageTileLayer_setShaderNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setShaderNative
 (JNIEnv *env, jobject obj, jlong shaderID)
 {
     try

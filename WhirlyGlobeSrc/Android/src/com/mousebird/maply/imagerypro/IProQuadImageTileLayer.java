@@ -35,6 +35,7 @@ import com.mousebird.maply.MaplyRenderer;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.MaplyTileID;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.QuadImageTileLayerInterface;
 import com.mousebird.maply.Scene;
 import com.mousebird.maply.Shader;
@@ -53,7 +54,7 @@ import com.mousebird.maply.ViewState;
  * @author sjg
  *
  */
-public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcherInterface, QuadImageTileLayerInterface
+public class IProQuadImageTileLayer extends Layer implements LayerThread.ViewWatcherInterface, QuadImageTileLayerInterface
 {
     /// Image format used internally (e.g. stored by OpenGL)
     public enum MaplyIProInternalImageFormat {
@@ -78,7 +79,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     // Set when the layer is active.
     boolean valid = false;
 
-    private QuadImageTileLayer()
+    private IProQuadImageTileLayer()
     {
     }
 
@@ -95,7 +96,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * @param inCoordSys Coordinate system the layer will work in, probably Spherical Mercator.
      * @param inTileSource Tile source for images.
      */
-    public QuadImageTileLayer(MaplyBaseController inMaplyControl,CoordSystem inCoordSys,com.mousebird.maply.QuadImageTileLayer.TileSource inTileSource)
+    public IProQuadImageTileLayer(MaplyBaseController inMaplyControl,CoordSystem inCoordSys,com.mousebird.maply.QuadImageTileLayer.TileSource inTileSource)
     {
         maplyControl = inMaplyControl;
         coordSys = inCoordSys;
@@ -932,7 +933,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     /**
      * Fill in the interface for the position feedback and you can set the position manually every frame.
      */
-    interface ImagePositionFeedback
+    public interface ImagePositionFeedback
     {
         /** The callback for position (or time) update.
          * <br>
@@ -942,7 +943,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
          * @param maxPos Maximum overall position for comparison (usually imageDepth).
          * @param currentPos Current position within the image stack.
          */
-        void positionForImagesLayer(QuadImageTileLayer layer,double minPos,double maxPos,double currentPos);
+        void positionForImagesLayer(IProQuadImageTileLayer layer, double minPos, double maxPos, double currentPos);
     }
 
     /**
@@ -976,14 +977,14 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * You can set currentImage directly or you can let the quad images layer animation on its own.  But if you really want to, you can just mess with the position directly each frame.
      * If you want to do that you fill in this delegate and return a position between minPos and maxPos.
      */
-    interface ImagePositionSetter
+    public interface ImagePositionSetter
     {
         /** Return a position to display within the image stack.
          * @param layer The quad images layer in question.
          * @param minPos Minimum overall position value for comparison (usually 0.0)
          * @param maxPos Maximum overall position for comparison (usually imageDepth).
          */
-        double calculatePositionForImagesLayer(QuadImageTileLayer layer,double minPos,double maxPos);
+        double calculatePositionForImagesLayer(IProQuadImageTileLayer layer,double minPos,double maxPos);
     }
 
     /**

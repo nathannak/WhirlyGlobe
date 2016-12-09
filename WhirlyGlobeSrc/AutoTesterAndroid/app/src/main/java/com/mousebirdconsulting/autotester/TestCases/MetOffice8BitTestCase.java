@@ -13,9 +13,9 @@ import com.mousebird.maply.Point2d;
 import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
+import com.mousebird.maply.imagerypro.IProMultiplexTileSource;
+import com.mousebird.maply.imagerypro.IProQuadImageTileLayer;
 import com.mousebird.maply.imagerypro.ImageSourceLayout;
-import com.mousebird.maply.imagerypro.MultiplexTileSource;
-import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -36,7 +36,7 @@ public class MetOffice8BitTestCase extends MaplyTestCase
 
     protected String baseURL = "%@";
 
-    private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
+    private IProQuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
 
         ArrayList<String> tileURLs = new ArrayList<String>();
         tileURLs.add("1481104800");
@@ -51,7 +51,7 @@ public class MetOffice8BitTestCase extends MaplyTestCase
         }
 
         SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
-        MultiplexTileSource tileSource = new MultiplexTileSource(baseController,tileInfos,coordSystem);
+        IProMultiplexTileSource tileSource = new IProMultiplexTileSource(baseController,tileInfos,coordSystem);
         tileSource.debugOutput = true;
         tileSource.delegate = new RemoteTileSource.TileSourceDelegate() {
             @Override
@@ -87,12 +87,12 @@ public class MetOffice8BitTestCase extends MaplyTestCase
         colorRampGen.stretch = false;
         Bitmap colorramp = colorRampGen.makeImage(256,1);
 
-        QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, tileSource);
+        IProQuadImageTileLayer baseLayer = new IProQuadImageTileLayer(baseController, coordSystem, tileSource);
         baseLayer.setImageDepth(tileURLs.size());
         baseLayer.setSourceLayout(srcLayout);
-        baseLayer.setInternalImageFormat(QuadImageTileLayer.MaplyIProInternalImageFormat.MaplyIProImage4Layer8Bit);
-        baseLayer.setSpatialInterpolate(QuadImageTileLayer.MaplyIProSpatialInterpolation.MaplyIProSpatialBilinear);
-        baseLayer.setTemporalInterpolate(QuadImageTileLayer.MaplyIProTemporalInterpolation.MaplyIProTemporalCubic);
+        baseLayer.setInternalImageFormat(IProQuadImageTileLayer.MaplyIProInternalImageFormat.MaplyIProImage4Layer8Bit);
+        baseLayer.setSpatialInterpolate(IProQuadImageTileLayer.MaplyIProSpatialInterpolation.MaplyIProSpatialBilinear);
+        baseLayer.setTemporalInterpolate(IProQuadImageTileLayer.MaplyIProTemporalInterpolation.MaplyIProTemporalCubic);
         baseLayer.setAnimationPeriod(6.0);
         baseLayer.setAnimationWrap(false);
         baseLayer.setRampImage(colorramp);

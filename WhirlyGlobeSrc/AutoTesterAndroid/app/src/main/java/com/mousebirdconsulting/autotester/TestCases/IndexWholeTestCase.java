@@ -9,8 +9,8 @@ import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
+import com.mousebird.maply.imagerypro.IProQuadImageTileLayer;
 import com.mousebird.maply.imagerypro.ImageSourceLayout;
-import com.mousebird.maply.imagerypro.QuadImageTileLayer;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.IndexTestTileSource;
@@ -30,7 +30,7 @@ public class IndexWholeTestCase extends MaplyTestCase
         this.implementation = TestExecutionImplementation.Both;
     }
 
-    private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception
+    private IProQuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception
     {
         IndexTestTileSource tileSource = new IndexTestTileSource(baseController,0,4,true,0);
 
@@ -45,10 +45,10 @@ public class IndexWholeTestCase extends MaplyTestCase
                 R.drawable.colorramp);
 
         SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
-        QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, tileSource);
+        IProQuadImageTileLayer baseLayer = new IProQuadImageTileLayer(baseController, coordSystem, tileSource);
         baseLayer.setImageDepth(4);
         baseLayer.setSourceLayout(srcLayout);
-        baseLayer.setInternalImageFormat(QuadImageTileLayer.MaplyIProInternalImageFormat.MaplyIProImage4Layer8Bit);
+        baseLayer.setInternalImageFormat(IProQuadImageTileLayer.MaplyIProInternalImageFormat.MaplyIProImage4Layer8Bit);
         baseLayer.setAnimationPeriod(6.0);
         baseLayer.setAnimationWrap(false);
         baseLayer.setRampImage(colorramp);
