@@ -739,6 +739,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLaye
 	}
 }
 
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_getMaxCurrentImage
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        IProQILAdapterClassInfo *classInfo = IProQILAdapterClassInfo::getClassInfo();
+        ImageryPro_QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return 0.0;
+        return adapter->maxCurrentImage;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getMaxCurrentImage()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_setAnimationPeriod
   (JNIEnv *env, jobject obj, jfloat period)
 {

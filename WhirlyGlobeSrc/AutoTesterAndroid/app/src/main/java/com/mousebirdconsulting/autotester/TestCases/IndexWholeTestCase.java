@@ -3,6 +3,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
@@ -54,6 +55,10 @@ public class IndexWholeTestCase extends MaplyTestCase
         baseLayer.setRampImage(colorramp);
 
         baseLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault+100);
+
+        Log.d("Maply","Image Layer number of frames = " + baseLayer.calcNumberOfFrames() + ", width per frame = "
+                + baseLayer.widthPerFrame() + ", maxCurrentImage = " + baseLayer.getMaxCurrentImage() );
+
         return baseLayer;
     }
 

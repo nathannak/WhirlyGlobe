@@ -151,6 +151,8 @@ public class IProQuadImageTileLayer extends Layer implements LayerThread.ViewWat
         setAnimationPeriod(animationPeriod);
         setAnimationWrap(animationWrap);
 
+        setMaxCurrentImage(calcNumberOfFrames()*widthPerFrame());
+
         layerThread.addWatcher(this);
         Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
         Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
@@ -265,7 +267,7 @@ public class IProQuadImageTileLayer extends Layer implements LayerThread.ViewWat
     void updateUpdater()
     {
         imageUpdater.program = shader;
-        imageUpdater.maxCurrentImage = getImageDepth();
+        imageUpdater.maxCurrentImage = getMaxCurrentImage();
         imageUpdater.period = getAnimationPeriod();
         switch (sourceLayout.sourceWidth)
         {
@@ -634,11 +636,15 @@ public class IProQuadImageTileLayer extends Layer implements LayerThread.ViewWat
 
     native public void setCurrentImages(int image0,int image1,ChangeSet changes);
 
-    /** If set, we'll use this as the maximum current image value when animating.
-     * By default this is off (-1).  When it's on, we'll consider this the last valid value for currentImage.  This means, when animating, we'll run from 0 to maxCurrentImage.
-     * This is helpful when you have an animation you want to taper off at the end past the last frame.
+    /**
+     * If set, we'll use this as the maximum current image value when animating.
      */
     public native void setMaxCurrentImage(float maxCurrent);
+
+    /**
+     * Return the maximum current image value possible when animing.
+     */
+    public native float getMaxCurrentImage();
 
     ImageUpdater imageUpdater = null;
 
@@ -931,6 +937,11 @@ public class IProQuadImageTileLayer extends Layer implements LayerThread.ViewWat
     }
 
     /**
+     * Return image layout information.
+     */
+    public ImageSourceLayout getSourceLayout() { return sourceLayout; }
+
+    /**
      * Fill in the interface for the position feedback and you can set the position manually every frame.
      */
     public interface ImagePositionFeedback
@@ -1049,6 +1060,29 @@ public class IProQuadImageTileLayer extends Layer implements LayerThread.ViewWat
     {
         spatialInterpolate = inVal;
     }
+
+    /**
+     * Figure out the total number of frames, taking the input images, slices per image, and slices in the last image into account.
+     */
+    public int calcNumberOfFrames()
+    {
+        if (getImageDepth() < 1)
+            return 0;
+
+        return sourceLayout.slicesPerImage * (getImageDepth() - 1) + sourceLayout.slicesInLastImage;
+    }
+
+    /**
+     * Returns the width of a single frame (slice) in units that currentImage uses.
+     */
+    public float widthPerFrame()
+    {
+        if (sourceLayout.slicesPerImage <= 1)
+            return 1.f;
+
+        return 1.f/sourceLayout.slicesPerImage;
+    }
+
 
     boolean debugMode = true;
     /**

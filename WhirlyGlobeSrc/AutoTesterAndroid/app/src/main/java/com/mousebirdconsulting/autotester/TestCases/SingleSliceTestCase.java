@@ -18,26 +18,26 @@ import com.mousebirdconsulting.autotester.IndexTestTileSource;
 import com.mousebirdconsulting.autotester.R;
 
 /**
- * Test case for 8 bit Indexed data.
- * 8 bit slices with indexing.
+ * Created by sjg on 12/8/16.
  */
-public class Index8BitStackTestCase extends MaplyTestCase
+
+public class SingleSliceTestCase extends MaplyTestCase
 {
-    public Index8BitStackTestCase(Activity activity) {
+    public SingleSliceTestCase(Activity activity) {
         super(activity);
 
-        setTestName("Indexed Image, 8 bit slices");
+        setTestName("Single slice, 8 bits");
         setDelay(20);
         this.implementation = TestExecutionImplementation.Both;
     }
 
     private IProQuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
 
-        IndexTestTileSource tileSource = new IndexTestTileSource(baseController,0,4,true,0);
+        IndexTestTileSource tileSource = new IndexTestTileSource(baseController,0,4,true,8);
 
         // Describe the input data sources
         ImageSourceLayout srcLayout = new ImageSourceLayout();
-        srcLayout.slicesInLastImage = 4;
+        srcLayout.slicesInLastImage = 1;
         srcLayout.indexed = true;
         srcLayout.sourceWidth = ImageSourceLayout.MaplyIProSourceWidth.MaplyIProWidth8Bits;
 
@@ -46,7 +46,7 @@ public class Index8BitStackTestCase extends MaplyTestCase
 
         SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
         IProQuadImageTileLayer baseLayer = new IProQuadImageTileLayer(baseController, coordSystem, tileSource);
-        baseLayer.setImageDepth(4);
+        baseLayer.setImageDepth(1);
         baseLayer.setSourceLayout(srcLayout);
         baseLayer.setInternalImageFormat(IProQuadImageTileLayer.MaplyIProInternalImageFormat.MaplyIProImage4Layer8Bit);
         baseLayer.setAnimationPeriod(6.0);

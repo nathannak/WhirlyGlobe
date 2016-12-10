@@ -73,6 +73,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLaye
 
 /*
  * Class:     com_mousebird_maply_imagerypro_IProQuadImageTileLayer
+ * Method:    getMaxCurrentImage
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_imagerypro_IProQuadImageTileLayer_getMaxCurrentImage
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_imagerypro_IProQuadImageTileLayer
  * Method:    setAllowFrameLoading
  * Signature: (Z)V
  */

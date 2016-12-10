@@ -102,6 +102,10 @@ public class MetOffice8BitTestCase extends MaplyTestCase
         baseLayer.setDebugMode(false);
 
         baseLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault+100);
+
+        Log.d("Maply","Image Layer number of frames = " + baseLayer.calcNumberOfFrames() + ", width per frame = "
+                + baseLayer.widthPerFrame() + ", maxCurrentImage = " + baseLayer.getMaxCurrentImage() );
+
         return baseLayer;
     }
 

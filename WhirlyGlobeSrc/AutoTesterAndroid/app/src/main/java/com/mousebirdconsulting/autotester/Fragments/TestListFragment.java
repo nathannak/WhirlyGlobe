@@ -21,6 +21,7 @@ import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.Index8BitStackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.IndexWholeTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MetOffice8BitTestCase;
+import com.mousebirdconsulting.autotester.TestCases.SingleSliceTestCase;
 
 import java.util.ArrayList;
 
@@ -80,6 +81,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new CartoDBMapTestCase(getActivity()));
 			testCases.add(new IndexWholeTestCase(getActivity()));
 			testCases.add(new Index8BitStackTestCase(getActivity()));
+			testCases.add(new SingleSliceTestCase(getActivity()));
 			testCases.add(new MetOffice8BitTestCase(getActivity()));
 		}
 
