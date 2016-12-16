@@ -92,27 +92,21 @@ public class AndroidLocationTestCase extends MaplyTestCase implements GoogleApiC
 
     public AndroidLocationTestCase(Activity activity) {
 
-        //
         super(activity);
         setTestName("AndroidLocation TestCase");
         setDelay(1000);
         this.implementation = TestExecutionImplementation.Both;
         ctx = activity.getBaseContext();
-        //
-
 
         //connect location
         buildGoogleApiClient();
         mGoogleApiClient.connect();
-        //
 
         //resigster sensor listener and initiate
         mSensorManager = (SensorManager) ctx.getSystemService(SENSOR_SERVICE);
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
         //
-
-
     }
 
     //
@@ -144,7 +138,6 @@ public class AndroidLocationTestCase extends MaplyTestCase implements GoogleApiC
 
         VectorsTestCase baseView = new VectorsTestCase(getActivity());
         baseView.setUpWithMap(mapVC);
-        //
 
         //keep a copy to be used later
         mapVC_copy = mapVC;
@@ -154,8 +147,7 @@ public class AndroidLocationTestCase extends MaplyTestCase implements GoogleApiC
         Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
         mapVC.setPositionGeo(loc.getX(), loc.getX(), 2);
         return true;
-        //
-    }
+        }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
@@ -286,12 +278,15 @@ public class AndroidLocationTestCase extends MaplyTestCase implements GoogleApiC
                 mapVC_copy.removeObject(object, MaplyBaseController.ThreadMode.ThreadAny);
                 insertMarker(mapVC_copy);
 
-                //consider locks
+
+                //consider locks - roatte the map base don selected lock
+
                 //if no lock mode is on just get the phone tilt by degrees
                 if(!headingUp && !northUp)
                 {
 
                     //ToDO compelte no lock formula
+                    //in iOS code however, nothing happens in tis case
 
                     //northUp is on
                 }else if(northUp && !headingUp){
@@ -306,7 +301,7 @@ public class AndroidLocationTestCase extends MaplyTestCase implements GoogleApiC
                     //this is how it is implemented in iOS project
                     // currentDegree * Math.PI/180 is the way it is calculated in insertMarker
                     // ToDO check for formula accuracy
-                    mapVC_copy.setHeading( currentDegree * Math.PI/180 + 2*Math.PI );
+                    mapVC_copy.setHeading( (currentDegree * Math.PI/180 + 2*Math.PI)%(2*Math.PI) );
 
                 }
 
